@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlantVision - 식물 성장 추적 앱</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <script src="/js/index.js"></script>
+</head>
+<body>
+    <div class="main-container">
+        <!-- 헤더 영역 -->
+        <header class="app-header">
+            <div class="logo">
+                <i class="fas fa-leaf"></i>
+                <span>PlantVision</span>
+            </div>
+            <nav class="main-nav">
+                <a href="#" class="nav-link active">홈</a>
+                <a href="/plant-tracker" class="nav-link">식물 관리</a>
+                <a href="#" class="nav-link">기능 소개</a>
+                <a href="#" class="nav-link">문의하기</a>
+            </nav>
+            <div class="auth-buttons">
+                <a href="#" class="btn btn-outline">로그인</a>
+                <a href="#" class="btn btn-primary">회원가입</a>
+            </div>
+        </header>
+
+        <!-- 메인 콘텐츠 -->
+        <main class="hero-section">
+            <div class="hero-content">
+                <h1>당신의 식물을 더 스마트하게 관리하세요</h1>
+                <p class="subtitle">PlantVision과 함께라면 누구나 식물 관리의 달인이 될 수 있습니다. 지금 바로 시작해보세요!</p>
+                <div class="cta-buttons">
+                    <a href="/plant-tracker" class="btn btn-primary btn-lg">지금 시작하기</a>
+                    <a href="#" class="btn btn-outline btn-lg">자세히 알아보기</a>
+                </div>
+            </div>
+        </main>
+
+        <section class="plant-gallery">
+            <h2>식물 갤러리</h2>
+            <div class="carousel-container">
+                <div class="carousel-track">
+                    <!-- 캐러셀 아이템들 -->
+                    <div class="carousel-slide">
+                        <div class="plant-card">
+                            <div class="plant-image" style="background-image: url('https://images.unsplash.com/photo-1593482892290-ab4a257d3f12?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+                            <div class="plant-info">
+                                <h3>몬스테라</h3>
+                                <p>관엽식물</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="plant-card">
+                            <div class="plant-image" style="background-image: url('https://images.unsplash.com/photo-1593482892290-ab4a257d3f12?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+                            <div class="plant-info">
+                                <h3>산세베리아</h3>
+                                <p>공기정화식물</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="plant-card">
+                            <div class="plant-image" style="background-image: url('https://images.unsplash.com/photo-1593482892290-ab4a257d3f12?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+                            <div class="plant-info">
+                                <h3>행운목</h3>
+                                <p>관엽식물</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="plant-card">
+                            <div class="plant-image" style="background-image: url('https://images.unsplash.com/photo-1593482892290-ab4a257d3f12?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+                            <div class="plant-info">
+                                <h3>스투키</h3>
+                                <p>다육식물</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="plant-card">
+                            <div class="plant-image" style="background-image: url('https://images.unsplash.com/photo-1593482892290-ab4a257d3f12?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+                            <div class="plant-info">
+                                <h3>벤자민</h3>
+                                <p>관엽식물</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-control prev" aria-label="이전">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="carousel-control next" aria-label="다음">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <div class="carousel-dots">
+                    <!-- 점 표시는 JavaScript에서 동적으로 생성 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 앱 기능 소개 -->
+        <section class="features">
+            <h2>주요 기능</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h3>식물 인식</h3>
+                    <p>사진만으로도 식물의 종류와 관리 방법을 알려드립니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3>물주기 알림</h3>
+                    <p>식물별로 최적의 물주기 알림을 받아보세요.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>성장 추적</h3>
+                    <p>식물의 성장 과정을 기록하고 추적해보세요.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 푸터 -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-leaf"></i>
+                    <span>PlantVision</span>
+                </div>
+                <div class="footer-links">
+                    <a href="#">이용약관</a>
+                    <a href="#">개인정보처리방침</a>
+                    <a href="#">문의하기</a>
+                </div>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 PlantVision. All rights reserved.
+            </div>
+        </footer>
+    </div>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
