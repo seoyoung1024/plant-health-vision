@@ -46,6 +46,15 @@ TIMELAPSE_DIR.mkdir(exist_ok=True)
 # 정적 파일 서빙
 app.mount("/static", StaticFiles(directory=str(UPLOAD_DIR)), name="static")
 
+# MONGO_URI = os.getenv("MONGO_URI")
+# DB_NAME = os.getenv("DB_NAME")
+# COLLECTION_NAME = os.getenv("COLLECTION_NAME")
+
+# # MongoDB 연결
+# mongo_client = MongoClient(MONGO_URI)
+# db = mongo_client[DB_NAME]
+# collection = db[COLLECTION_NAME]
+
 # 모델 정의
 class PlantImage(BaseModel):
     id: str
