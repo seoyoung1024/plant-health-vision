@@ -90,7 +90,7 @@
 
 1. 저장소 클론
    ```bash
-   git clone https://github.com/your-username/plant-health-vision.git
+   git clone https://github.com/seoyoung1024/plant-health-vision.git
    cd plant-health-vision
    ```
 
