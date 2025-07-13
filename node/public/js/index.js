@@ -12,8 +12,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const totalSlideWidth = slideWidth + slideMargin;
     
     // 자동 슬라이드 간격 (밀리초)
-    const slideInterval = 3000;
+    const slideInterval = 9000;
     let slideTimer;
+    
+    function updateCarousel() {
+      slides.forEach((slide, index) => {
+        slide.classList.remove("active");
+        if (index === currentIndex) {
+          slide.classList.add("active");
+        }
+      });
+    }
+    
+    document.querySelector(".carousel-control.next").addEventListener("click", () => {
+      currentIndex = (currentIndex + 1) % slides.length;
+      updateCarousel();
+    });
+    
+    document.querySelector(".carousel-control.prev").addEventListener("click", () => {
+      currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+      updateCarousel();
+    });
+    
+    // 초기 실행
+    updateCarousel();
+    
     
     // 도트 생성
     function createDots() {
