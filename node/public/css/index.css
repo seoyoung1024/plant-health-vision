@@ -142,7 +142,7 @@ img {
 }
 
 .hero-content {
-    margin-top: 10%;
+    margin-top: 12%;
     max-width: 550px;
     margin-left: 45%;
 }
@@ -151,7 +151,7 @@ img {
     font-size: 3rem;
     line-height: 1.2;
     margin-bottom: 20px;
-    color: var(--text-primary);
+    color: #122427;
     word-break: keep-all;
 }
 
@@ -184,6 +184,7 @@ img {
     width: 100%;
     overflow: visible;
     padding: 0 80px;
+    margin-top: 50px;
   }
   
   /* 트랙 */
@@ -256,9 +257,10 @@ img {
 .plant-image {
     background-size: contain;
     background-repeat: no-repeat;
-    transform: translateY(-10px) translateX(-20px);
-    width: 180px;
-    height: 200px;
+    background-position: center;
+    transform: translateY(-30px) translateX(-70px);
+    width: 200px;
+    height: 220px;
 }
 
 .plant-info {
@@ -268,7 +270,16 @@ img {
 .plant-info h3 {
     font-size: 1.2rem;
     margin-bottom: 5px;
-    color: var(--text-primary);
+    position: absolute;
+    top: 63%; /* 상단에서 거리 */
+    left: 50%; 
+    color: #122427; /* 이미지 위에서는 흰색이 잘 보임 */
+    padding: 5px 10px;
+    border-radius: 8px;
+    z-index: 2;
+    word-break: keep-all;
+    font-size: 0.9rem;
+    text-align: left;
 }
 
 .plant-info p {
