@@ -19,6 +19,21 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// ✅ 로그인
+router.post('/login', async (req, res) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/login`, req.body);
+    res.json(response.data);
+  } catch (error) {
+    console.error('로그인 오류:', error.response?.data || error.message);
+    res.status(500).json({
+      error: '로그인 실패',
+      detail: error.response?.data || error.message
+    });
+  }
+});
+
+
 // ✅ 이미지 업로드
 router.post('/upload', async (req, res) => {
   try {

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Header from "./Header";
+import './Register.css'; // CSS 파일 임포트
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -8,7 +10,7 @@ const Register = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://15.168.150.125:8000/api/register', {
+      const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -27,43 +29,36 @@ const Register = () => {
   };
 
   return (
-    <div style={{ padding: 20 }}>
-              {/* 헤더 영역 */}
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></link>
-      <header className="app-header">
-        <div className="logo">
-          <i className="fas fa-leaf"></i>
-          <span>PlantMate</span>
+    <div>
+      <Header />
+        <div className="register-container">
+      <form className="register-form" onSubmit={handleRegister}>
+        <h2>회원가입</h2>
+        <div className="input-group">
+          <label htmlFor="email">이메일</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="이메일을 입력하세요"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </div>
-        <nav className="main-nav">
-          <a href="#" className="nav-link active">홈</a>
-          <a href="/plant-tracker" className="nav-link">식물 관리</a>
-          <a href="#" className="nav-link">기능 소개</a>
-          <a href="#" className="nav-link">문의하기</a>
-        </nav>
-        <div className="auth-buttons">
-          <a href="Register" className="btn btn-outline">로그인</a>
-          <a href="#" className="btn btn-primary">회원가입</a>
+        <div className="input-group">
+          <label htmlFor="password">비밀번호</label>
+          <input
+            id="password"
+            type="password"
+            placeholder="비밀번호를 입력하세요"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
         </div>
-      </header>
-      <h2>회원가입</h2>
-      <form onSubmit={handleRegister}>
-        <input
-          type="email"
-          placeholder="이메일"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        /><br /><br />
-        <input
-          type="password"
-          placeholder="비밀번호"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        /><br /><br />
-        <button type="submit">가입하기</button>
+        <button type="submit" className="register-button">가입하기</button>
       </form>
+    </div>
     </div>
   );
 };

@@ -85,6 +85,61 @@ async def register_user(user: UserCreate):
     return {"success": True, "message": "회원가입이 완료되었습니다."}
 
 
+from fastapi import FastAPI, Depends, HTTPException, status, Form
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import JWTError, jwt
+from datetime import datetime, timedelta
+from pydantic import BaseModel
+import mysql.connector
+
+# JWT 설정
+SECRET_KEY = "your-secret-key"  # 안전한 랜덤 문자열로 바꾸세요!
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
+
+# 토큰 생성 함수
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+# MySQL 접속 함수
+def get_db():
+    return mysql.connector.connect(
+        host="15.168.150.125",
+        port=3306,
+        user="root",
+        password="1234",
+        database="plant_data",
+    )
+
+# 로그인 요청 모델
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+# 로그인 API
+@app.post("/api/login", response_model=Token)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM users WHERE email = %s", (form_data.username,))
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if not user or not pwd_context.verify(form_data.password, user["hashed_password"]):
+        raise HTTPException(status_code=400, detail="잘못된 이메일 또는 비밀번호")
+
+    token_data = {"sub": user["email"]}
+    access_token = create_access_token(token_data)
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
 # CORS 미들웨어 설정
 app.add_middleware(
     CORSMiddleware,

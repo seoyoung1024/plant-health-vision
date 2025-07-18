@@ -1,0 +1,53 @@
+import React, { useState } from 'react';
+
+const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('로그인 성공!');
+        console.log('JWT 토큰:', data.access_token); // 토큰 저장 예시
+        // 예: localStorage.setItem('token', data.access_token);
+      } else {
+        alert(data.detail || '로그인 실패');
+      }
+    } catch (error) {
+      alert('에러 발생: ' + error.message);
+    }
+  };
+
+  return (
+    <form onSubmit={handleLogin}>
+      <h2>로그인</h2>
+      <input
+        type="email"
+        placeholder="이메일"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+      <input
+        type="password"
+        placeholder="비밀번호"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+      <button type="submit">로그인</button>
+    </form>
+  );
+};
+
+export default Login;
