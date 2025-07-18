@@ -27,6 +27,64 @@ app = FastAPI(
     version="1.0.0"
 )
 
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, EmailStr
+from passlib.context import CryptContext
+from datetime import datetime
+import mysql.connector
+
+app = FastAPI()
+
+# 비밀번호 해싱 설정
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# MySQL 연결 설정
+db_config = {
+    "host": "15.168.150.125",       
+    "port" : 3306, 
+    "user": "root",
+    "password": "1234",
+    "database": "plant_data",
+}
+def get_db():
+    return mysql.connector.connect(**db_config)
+
+# 유저 생성용 모델
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+
+# 비밀번호 해시 함수
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+# 회원가입 API
+@app.post("/api/register")
+async def register_user(user: UserCreate):
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # 이메일 중복 확인
+    cursor.execute("SELECT id FROM users WHERE email = %s", (user.email,))
+    existing_user = cursor.fetchone()
+    if existing_user:
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=400, detail="이미 존재하는 이메일입니다.")
+
+    # 비밀번호 해싱 후 삽입
+    hashed_pw = hash_password(user.password)
+    cursor.execute(
+        "INSERT INTO users (email, hashed_password, created_at) VALUES (%s, %s, %s)",
+        (user.email, hashed_pw, datetime.utcnow())
+    )
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return {"success": True, "message": "회원가입이 완료되었습니다."}
+
+
 # CORS 미들웨어 설정
 app.add_middleware(
     CORSMiddleware,
@@ -75,7 +133,8 @@ class AnalysisRequest(BaseModel):
 db = {
     "plants": {},
     "images": [],
-    "timelapses": {}
+    "timelapses": {},
+     "users": {}  
 }
 
 # 유틸리티 함수
