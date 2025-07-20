@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./MainPage.css";
 import { Link } from 'react-router-dom';
-import Login from "./Login";
-import Register from "./Register";
 
 const Header = () => {
     return (
@@ -24,8 +22,8 @@ const Header = () => {
           <a href="#" className="nav-link">문의하기</a>
         </nav>
         <div className="auth-buttons">
-          <Login />
-          <Register />
+           <a href="Login" className="btn btn-outline">로그인</a>
+          <a href="Register" className="btn btn-primary">회원가입</a>
         </div>
       </header>
     </div>

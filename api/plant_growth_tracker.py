@@ -19,128 +19,19 @@ import imageio.v3 as iio
 import tempfile
 import shutil
 from pathlib import Path
-
-# FastAPI 앱 생성
-app = FastAPI(
-    title="Plant Growth Tracker API",
-    description="식물 성장 추적 및 분석을 위한 API",
-    version="1.0.0"
-)
-
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, EmailStr
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer
+from jose import jwt
 from passlib.context import CryptContext
-from datetime import datetime
+from pydantic import BaseModel, EmailStr
 import mysql.connector
+from datetime import datetime, timedelta, timezone
 
+# 앱 생성
 app = FastAPI()
 
-# 비밀번호 해싱 설정
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-# MySQL 연결 설정
-db_config = {
-    "host": "15.168.150.125",       
-    "port" : 3306, 
-    "user": "root",
-    "password": "1234",
-    "database": "plant_data",
-}
-def get_db():
-    return mysql.connector.connect(**db_config)
-
-# 유저 생성용 모델
-class UserCreate(BaseModel):
-    email: EmailStr
-    password: str
-
-# 비밀번호 해시 함수
-def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
-
-# 회원가입 API
-@app.post("/api/register")
-async def register_user(user: UserCreate):
-    conn = get_db()
-    cursor = conn.cursor()
-
-    # 이메일 중복 확인
-    cursor.execute("SELECT id FROM users WHERE email = %s", (user.email,))
-    existing_user = cursor.fetchone()
-    if existing_user:
-        cursor.close()
-        conn.close()
-        raise HTTPException(status_code=400, detail="이미 존재하는 이메일입니다.")
-
-    # 비밀번호 해싱 후 삽입
-    hashed_pw = hash_password(user.password)
-    cursor.execute(
-        "INSERT INTO users (email, hashed_password, created_at) VALUES (%s, %s, %s)",
-        (user.email, hashed_pw, datetime.utcnow())
-    )
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    return {"success": True, "message": "회원가입이 완료되었습니다."}
-
-
-from fastapi import FastAPI, Depends, HTTPException, status, Form
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jose import JWTError, jwt
-from datetime import datetime, timedelta
-from pydantic import BaseModel
-import mysql.connector
-
-# JWT 설정
-SECRET_KEY = "your-secret-key"  # 안전한 랜덤 문자열로 바꾸세요!
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
-
-# 토큰 생성 함수
-def create_access_token(data: dict, expires_delta: timedelta = None):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-# MySQL 접속 함수
-def get_db():
-    return mysql.connector.connect(
-        host="15.168.150.125",
-        port=3306,
-        user="root",
-        password="1234",
-        database="plant_data",
-    )
-
-# 로그인 요청 모델
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-# 로그인 API
-@app.post("/api/login", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    conn = get_db()
-    cursor = conn.cursor(dictionary=True)
-
-    cursor.execute("SELECT * FROM users WHERE email = %s", (form_data.username,))
-    user = cursor.fetchone()
-    cursor.close()
-    conn.close()
-
-    if not user or not pwd_context.verify(form_data.password, user["hashed_password"]):
-        raise HTTPException(status_code=400, detail="잘못된 이메일 또는 비밀번호")
-
-    token_data = {"sub": user["email"]}
-    access_token = create_access_token(token_data)
-    return {"access_token": access_token, "token_type": "bearer"}
-
-
-# CORS 미들웨어 설정
+# CORS 설정
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -148,6 +39,82 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ✅ 한국 시간대 (KST)
+KST = timezone(timedelta(hours=9))
+def get_kst_now():
+    return datetime.now(KST)
+
+# 보안 설정
+SECRET_KEY = "your-secret-key"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# DB 연결 함수
+def get_db():
+    return mysql.connector.connect(
+        host="15.168.150.125",
+        port=3306,
+        user="root",
+        password="1234",
+        database="plant_data"
+    )
+
+# JWT 생성 함수
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+# 모델 정의
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+# ✅ 회원가입
+@app.post("/api/register")
+async def register_user(user: UserCreate):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM users WHERE email = %s", (user.email,))
+    if cursor.fetchone():
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=400, detail="이미 존재하는 이메일입니다.")
+    hashed_pw = pwd_context.hash(user.password)
+    cursor.execute(
+        "INSERT INTO users (email, hashed_password, created_at) VALUES (%s, %s, %s)",
+        (user.email, hashed_pw, get_kst_now())
+    )
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {"success": True, "message": "회원가입이 완료되었습니다."}
+
+# ✅ 로그인
+@app.post("/api/login", response_model=Token)
+async def login(request: LoginRequest):
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users WHERE email = %s", (request.email,))
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    if not user or not pwd_context.verify(request.password, user["hashed_password"]):
+        raise HTTPException(status_code=400, detail="잘못된 이메일 또는 비밀번호")
+    access_token = create_access_token({"sub": user["email"]})
+    return {"access_token": access_token, "token_type": "bearer"}
 
 # 디렉토리 설정
 BASE_DIR = Path(__file__).parent
@@ -158,15 +125,6 @@ TIMELAPSE_DIR.mkdir(exist_ok=True)
 
 # 정적 파일 서빙
 app.mount("/static", StaticFiles(directory=str(UPLOAD_DIR)), name="static")
-
-# MONGO_URI = os.getenv("MONGO_URI")
-# DB_NAME = os.getenv("DB_NAME")
-# COLLECTION_NAME = os.getenv("COLLECTION_NAME")
-
-# # MongoDB 연결
-# mongo_client = MongoClient(MONGO_URI)
-# db = mongo_client[DB_NAME]
-# collection = db[COLLECTION_NAME]
 
 # 모델 정의
 class PlantImage(BaseModel):
@@ -184,13 +142,6 @@ class TimelapseRequest(BaseModel):
 class AnalysisRequest(BaseModel):
     image_id: str
 
-# 임시 데이터 저장 (실제로는 데이터베이스 사용 권장)
-db = {
-    "plants": {},
-    "images": [],
-    "timelapses": {},
-     "users": {}  
-}
 
 # 유틸리티 함수
 def save_upload_file(upload_file: UploadFile, destination: Path) -> str:

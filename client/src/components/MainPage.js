@@ -2,7 +2,6 @@ import React from "react";
 import "./MainPage.css";
 import Carousel from "./Carousel";
 import Header from "./Header";
-import Login from "./Login";
 
 const MainPage = () => {
   return (
