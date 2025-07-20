@@ -1,43 +1,32 @@
+
 import React, { useEffect, useRef, useState } from "react";
-import "./MainPage.css";
+import "./MainPage.css"; // 스타일은 기존 유지
 
-const plantData = [
-  { img: require("../assets/monstera1.png"), name: "몬스테라 관엽식물" },
-  { img: require("../assets/plant1.png"), name: "산세베리아 공기정화식물" },
-  { img: require("../assets/monstera1.png"), name: "행운목 관엽식물" },
-  { img: require("../assets/monstera1.png"), name: "스투키 다육식물" },
-  { img: require("../assets/monstera1.png"), name: "벤자민 관엽식물" }
-];
-
-const SLIDE_WIDTH = 275;
-const VISIBLE_COUNT = 5;
-const REPEAT_COUNT = 50; // 충분히 반복 (250개)
-
-const Carousel = () => {
+const Carousel = ({ mixedData = [] }) => {
   const [index, setIndex] = useState(0);
   const trackRef = useRef(null);
 
+  const REPEAT_COUNT = 50;
+  const SLIDE_WIDTH = 275;
+  const VISIBLE_COUNT = 5;
+
   const repeatedItems = Array(REPEAT_COUNT)
     .fill(null)
-    .flatMap(() => plantData);
+    .flatMap(() => mixedData);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prev) => prev + 1);
-    }, 3000);
+    const interval = setInterval(() => setIndex((prev) => prev + 1), 3000);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    if (!trackRef.current) return;
+    if (!trackRef.current || repeatedItems.length === 0) return;
 
     const totalSlides = repeatedItems.length;
-
     if (index >= totalSlides - VISIBLE_COUNT) {
-      // 애니메이션 없이 맨 앞으로 순간 이동
       trackRef.current.style.transition = "none";
       trackRef.current.style.transform = `translateX(0px)`;
-      setIndex(1); // 다음 슬라이드를 위해 index를 1로
+      setIndex(1);
     } else {
       trackRef.current.style.transition = "transform 0.6s ease-in-out";
       trackRef.current.style.transform = `translateX(-${index * SLIDE_WIDTH}px)`;

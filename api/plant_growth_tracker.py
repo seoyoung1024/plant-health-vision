@@ -2,14 +2,11 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
 from typing import List, Optional
 import os
 import uuid
 import shutil
-from datetime import datetime
 import subprocess
-from pathlib import Path
 import numpy as np
 from PIL import Image
 import io
@@ -17,19 +14,23 @@ import base64
 import requests
 import imageio.v3 as iio
 import tempfile
-import shutil
 from pathlib import Path
-from fastapi import FastAPI, HTTPException, Depends
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr
 import mysql.connector
 from datetime import datetime, timedelta, timezone
+import boto3
+import random
+import urllib.parse
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+import boto3
+from botocore.exceptions import ClientError
 
 # 앱 생성
 app = FastAPI()
+load_dotenv()
 
 # CORS 설정
 app.add_middleware(
@@ -50,6 +51,60 @@ SECRET_KEY = "your-secret-key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+AWS_REGION = os.getenv("AWS_REGION")
+AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY")
+AWS_SECRET_KEY = os.getenv("AWS_SECRET_KEY")
+S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
+S3_FOLDER = os.getenv("S3_FOLDER")
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key")  # fallback도 가능
+
+
+s3_client = boto3.client(
+    "s3",
+    region_name=AWS_REGION,
+    aws_access_key_id=AWS_ACCESS_KEY,
+    aws_secret_access_key=AWS_SECRET_KEY
+)
+
+@app.get("/api/plant-images/{plant_name}")
+def get_plant_images(plant_name: str, sample_count: int = 10):
+    """
+    Presigned URL을 사용해 식물 이름에 해당하는 이미지 반환
+    """
+    try:
+        response = s3_client.list_objects_v2(Bucket=S3_BUCKET_NAME, Prefix=S3_FOLDER)
+
+        if "Contents" not in response:
+            return {"images": []}
+
+        matched_keys = [
+            obj["Key"] for obj in response["Contents"]
+            if plant_name in obj["Key"] and obj["Key"].lower().endswith((".jpg", ".jpeg", ".png"))
+        ]
+
+        random.shuffle(matched_keys)
+        sampled_keys = matched_keys[:sample_count]
+
+        image_urls = []
+
+        for key in sampled_keys:
+            try:
+                presigned_url = s3_client.generate_presigned_url(
+                    "get_object",
+                    Params={"Bucket": S3_BUCKET_NAME, "Key": key},
+                    ExpiresIn=3600  # 1시간 유효
+                )
+                image_urls.append(presigned_url)
+            except ClientError as e:
+                print(f"Error generating URL for {key}: {e}")
+                continue
+
+        return {"images": image_urls}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 # DB 연결 함수
 def get_db():

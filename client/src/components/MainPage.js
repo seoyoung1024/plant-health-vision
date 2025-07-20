@@ -1,9 +1,40 @@
-import React from "react";
+
+import React, { useEffect, useState } from "react";
 import "./MainPage.css";
 import Carousel from "./Carousel";
 import Header from "./Header";
 
 const MainPage = () => {
+  const plantNames = ["감나무", "개망초", "엉겅퀴", "네잎클로바", "안개꽃", "개나리"];
+  const [mixedPlantImages, setMixedPlantImages] = useState([]);
+
+  useEffect(() => {
+    const fetchAllImages = async () => {
+      try {
+        const responses = await Promise.all(
+          plantNames.map((name) =>
+            fetch(`/api/plant-images/${name}?sample_count=2`).then((res) => res.json())
+          )
+        );
+
+        const combined = responses.flatMap((res, idx) =>
+          res.images.map((url) => ({
+            img: url,
+            name: plantNames[idx],
+          }))
+        );
+
+        // 랜덤 섞기
+        const shuffled = combined.sort(() => Math.random() - 0.5);
+        setMixedPlantImages(shuffled);
+      } catch (err) {
+        console.error("이미지 로딩 실패:", err);
+      }
+    };
+
+    fetchAllImages();
+  }, []);
+
   return (
     <div className="main-container">
       <Header />
@@ -17,7 +48,7 @@ const MainPage = () => {
         </div>
       </main>
       <section className="plant-gallery">
-        <Carousel />
+          <Carousel mixedData={mixedPlantImages} />
       </section>
 
       {/* 앱 기능 소개 */}
@@ -47,7 +78,6 @@ const MainPage = () => {
           </div>
         </div>
       </section>
-
       {/* 푸터 */}
       <footer className="app-footer">
         <div className="footer-content">

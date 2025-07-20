@@ -33,6 +33,23 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// ✅ S3에서 식물 이미지 가져오기 (FastAPI 프록시)
+router.get('/plant-images/:plantName', async (req, res) => {
+  try {
+    const { plantName } = req.params;
+    const { sample_count } = req.query;
+
+    const response = await axios.get(`${API_BASE_URL}/api/plant-images/${encodeURIComponent(plantName)}?sample_count=${sample_count || 5}`);
+    res.json(response.data);
+  } catch (error) {
+    console.error('식물 이미지 프록시 실패:', error.response?.data || error.message);
+    res.status(500).json({
+      error: '식물 이미지 가져오기 실패',
+      detail: error.response?.data || error.message
+    });
+  }
+});
+
 
 // ✅ 이미지 업로드
 router.post('/upload', async (req, res) => {
