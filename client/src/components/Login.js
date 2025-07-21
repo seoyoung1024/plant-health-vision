@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Header from "./Header";
+import './Register.css'; // CSS 파일 임포트
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -29,8 +31,12 @@ const Login = () => {
   };
 
   return (
-    <form onSubmit={handleLogin}>
+    <biv>
+      <Header />
+       <div className="register-container">
+    <form className="register-form" onSubmit={handleLogin}>
       <h2>로그인</h2>
+       <div className="input-group">
       <input
         type="email"
         placeholder="이메일"
@@ -38,6 +44,8 @@ const Login = () => {
         onChange={(e) => setEmail(e.target.value)}
         required
       />
+      </div>
+       <div className="input-group">
       <input
         type="password"
         placeholder="비밀번호"
@@ -45,8 +53,11 @@ const Login = () => {
         onChange={(e) => setPassword(e.target.value)}
         required
       />
-      <button type="submit">로그인</button>
+      </div>
+      <button type="submit" className="register-button">로그인</button>
     </form>
+    </div>
+    </biv>
   );
 };
 
