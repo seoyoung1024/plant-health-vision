@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Form
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Form, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -15,7 +15,6 @@ import requests
 import imageio.v3 as iio
 import tempfile
 from pathlib import Path
-from jose import jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr
 import mysql.connector
@@ -24,13 +23,58 @@ import boto3
 import random
 import urllib.parse
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
-import boto3
 from botocore.exceptions import ClientError
+from jose import JWTError, jwt
+from fastapi.security import OAuth2PasswordBearer
+from fastapi.openapi.utils import get_openapi
 
 # 앱 생성
 app = FastAPI()
 load_dotenv()
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/login")
+
+def verify_token(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="유효하지 않은 인증 정보입니다.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+        return email  # 필요하면 사용자 조회해서 반환 가능
+    except JWTError:
+        raise credentials_exception
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="Plant Growth Tracker API",
+        version="1.0.0",
+        description="식물 성장 추적 및 인증 API",
+        routes=app.routes,
+    )
+    openapi_schema["components"]["securitySchemes"] = {
+        "BearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT"
+        }
+    }
+    for path in openapi_schema["paths"].values():
+        for operation in path.values():
+            operation["security"] = [{"BearerAuth": []}]
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
+
 
 # CORS 설정
 app.add_middleware(
@@ -46,18 +90,17 @@ KST = timezone(timedelta(hours=9))
 def get_kst_now():
     return datetime.now(KST)
 
-# 보안 설정
-SECRET_KEY = "your-secret-key"
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 AWS_REGION = os.getenv("AWS_REGION")
 AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY")
 AWS_SECRET_KEY = os.getenv("AWS_SECRET_KEY")
 S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
 S3_FOLDER = os.getenv("S3_FOLDER")
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key")  # fallback도 가능
+
 
 
 s3_client = boto3.client(
@@ -157,7 +200,7 @@ async def register_user(user: UserCreate):
     conn.close()
     return {"success": True, "message": "회원가입이 완료되었습니다."}
 
-# ✅ 로그인
+# ✅ 로그인 (토큰 발급)
 @app.post("/api/login", response_model=Token)
 async def login(request: LoginRequest):
     conn = get_db()
@@ -166,10 +209,32 @@ async def login(request: LoginRequest):
     user = cursor.fetchone()
     cursor.close()
     conn.close()
+
     if not user or not pwd_context.verify(request.password, user["hashed_password"]):
-        raise HTTPException(status_code=400, detail="잘못된 이메일 또는 비밀번호")
+        raise HTTPException(status_code=400, detail="잘못된 이메일 또는 비밀번호입니다.")
+
     access_token = create_access_token({"sub": user["email"]})
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+# ✅ 로그인
+@app.get("/api/login")
+async def get_profile(current_user_email: str = Depends(verify_token)):
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users WHERE email = %s", (current_user_email,))
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="유저를 찾을 수 없습니다.")
+    
+    return {
+        "email": user["email"],
+        "created_at": user["created_at"]
+    }
+
 
 # 디렉토리 설정
 BASE_DIR = Path(__file__).parent
