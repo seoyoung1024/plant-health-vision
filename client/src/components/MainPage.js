@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import "./MainPage.css";
+import '../styles/MainPage.css';
 import Carousel from "./Carousel";
 import Header from "./Header";
 

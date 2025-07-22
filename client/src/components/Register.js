@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Header from "./Header";
-import './Register.css'; // CSS 파일 임포트
+import '../styles/Register.css'; // CSS 파일 임포트
 
 const Register = () => {
   const [email, setEmail] = useState('');

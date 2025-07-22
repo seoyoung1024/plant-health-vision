@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // 페이지 이동용
 import Header from "./Header";
-import './Register.css';
+import '../styles/Register.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');

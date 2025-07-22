@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./MainPage.css";
+import "../styles/MainPage.css";
 import { Link, useNavigate } from 'react-router-dom';
 
 const Header = () => {
@@ -42,9 +42,9 @@ const Header = () => {
           <a href="/" className="nav-link active">
             홈
           </a>
-          <a href="#" className="nav-link">
+          <Link to="/plantgrowthtracker" className="nav-link">
             식물 관리
-          </a>
+          </Link>
           <a href="#" className="nav-link">
             기능 소개
           </a>

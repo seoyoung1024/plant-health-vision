@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from "react";
-import "./MainPage.css"; // 스타일은 기존 유지
+import "../styles/MainPage.css"; // 스타일은 기존 유지
 
 const Carousel = ({ mixedData = [] }) => {
   const [index, setIndex] = useState(0);
