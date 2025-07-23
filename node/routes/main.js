@@ -82,24 +82,4 @@ router.get('/analyze/:imageId', async (req, res) => {
   }
 });
 
-// ✅ 타임랩스
-router.post('/timelapse', async (req, res) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/api/timelapse/create`, req.body);
-    res.json(response.data);
-  } catch (error) {
-    res.status(500).json({ error: '타임랩스 실패', details: error.message });
-  }
-});
-
-// ✅ SNS 공유
-router.post('/share', async (req, res) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/api/share/sns`, req.body);
-    res.json(response.data);
-  } catch (error) {
-    res.status(500).json({ error: '공유 실패', details: error.message });
-  }
-});
-
 module.exports = router;

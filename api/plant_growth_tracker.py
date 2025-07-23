@@ -28,20 +28,14 @@ from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.openapi.utils import get_openapi
 from growth_analysis import router as growth_router
-
+from db import db
 
 
 # 앱 생성
 app = FastAPI()
 load_dotenv()
 
-db = {
-    "plants": {},
-    "images": []
-}
-
 app.include_router(growth_router)
-
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -157,6 +151,7 @@ def get_plant_images(plant_name: str, sample_count: int = 10):
         return {"images": image_urls}
 
     except Exception as e:
+        print(f"🔥 서버 오류: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -250,12 +245,13 @@ async def get_profile(current_user_email: str = Depends(verify_token)):
 # 디렉토리 설정
 BASE_DIR = Path(__file__).parent
 UPLOAD_DIR = BASE_DIR / "uploads"
-TIMELAPSE_DIR = BASE_DIR / "timelapses"
+ANNOTATED_DIR = UPLOAD_DIR / "annotated"  # ✅ 추가
 UPLOAD_DIR.mkdir(exist_ok=True)
-TIMELAPSE_DIR.mkdir(exist_ok=True)
+ANNOTATED_DIR.mkdir(exist_ok=True)  # ✅ 이 부분도 추가
 
 # 정적 파일 서빙
 app.mount("/static", StaticFiles(directory=str(UPLOAD_DIR)), name="static")
+app.mount("/static/annotated", StaticFiles(directory=str(ANNOTATED_DIR)), name="annotated")
 
 # 모델 정의
 class PlantImage(BaseModel):
@@ -275,11 +271,12 @@ class AnalysisRequest(BaseModel):
 
 
 # 유틸리티 함수
-def save_upload_file(upload_file: UploadFile, destination: Path) -> str:
-    """업로드된 파일을 저장하고 파일 경로를 반환합니다."""
+def save_upload_file(upload_file: UploadFile, destination: Path, plant_id: str) -> str:
+    """업로드된 파일을 날짜+식물ID로 저장하고 경로를 반환합니다."""
     file_extension = Path(upload_file.filename).suffix
-    now_str = datetime.now().strftime("%Y%m%d_%H%M%S")  # 📅 날짜 포함
-    filename = f"{now_str}_{uuid.uuid4()}{file_extension}"
+    now_str = get_kst_now().strftime("%Y%m%d_%H%M%S")
+    safe_plant_id = plant_id.replace(" ", "_")  # 공백 등 제거
+    filename = f"{now_str}_{safe_plant_id}{file_extension}"
     file_path = destination / filename
 
     with file_path.open("wb") as buffer:
@@ -289,14 +286,31 @@ def save_upload_file(upload_file: UploadFile, destination: Path) -> str:
 
 
 def analyze_plant_health(image_path: Path) -> dict:
-    """식물 이미지를 분석하여 건강 상태를 반환합니다."""
-    # 여기에 실제 AI/ML 모델을 통한 분석 로직 구현
-    # 예시로 단순한 분석 결과 반환
+    """식물 이미지를 분석하여 건강 상태를 반환하고 시각화 이미지를 저장합니다."""
+
+    # ✅ 1. 이미지 열기
+    image = Image.open(image_path).convert("RGB")
+    annotated = image.copy()
+
+    # ✅ 2. 시각화 처리 예시 (빨간 사각형 추가)
+    from PIL import ImageDraw
+    draw = ImageDraw.Draw(annotated)
+    draw.rectangle([(50, 50), (150, 150)], outline="red", width=5)  # 예시 박스
+
+    # ✅ 3. 저장 경로 구성
+    annotated_filename = f"annotated_{image_path.name}"
+    annotated_path = ANNOTATED_DIR / annotated_filename
+
+    # ✅ 4. 이미지 저장
+    annotated.save(annotated_path)
+
+    # ✅ 5. 분석 결과 리턴 (시각화 이미지 경로 포함 가능)
     return {
         "health_score": 85,
         "growth_stage": "성장기",
         "issues": ["수분 부족 의심"],
-        "recommendations": ["물 주기를 줄여보세요."]
+        "recommendations": ["물 주기를 줄여보세요."],
+        "annotated_url": f"/static/annotated/{annotated_filename}"  # 👈 프론트엔드에서 띄우기 쉬움
     }
 
 def create_timelapse(images: List[Path], output_path: Path, fps: int = 2):
@@ -354,12 +368,9 @@ async def upload_plant_image(
         if file_extension.lower() not in ['.jpg', '.jpeg', '.png', '.bmp']:
             raise HTTPException(status_code=400, detail="이미지 파일만 허용됩니다.")
 
-        filename = f"{uuid.uuid4()}{file_extension}"
+        filename = save_upload_file(file, UPLOAD_DIR, plant_id)
         file_path = UPLOAD_DIR / filename
-        print(f"📷 저장할 파일 경로: {file_path}")
 
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
 
         print("✅ 파일 저장 완료")
 

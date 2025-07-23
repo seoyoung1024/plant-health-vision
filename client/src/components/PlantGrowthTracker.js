@@ -4,11 +4,7 @@ import Header from "./Header";
 
 const PlantGrowthTracker = () => {
   const [plantId, setPlantId] = useState('');
-  const [timelapsePlantId, setTimelapsePlantId] = useState('');
   const [imageGallery, setImageGallery] = useState([]);
-  const [modalShow, setModalShow] = useState(false);
-  const [modalImage, setModalImage] = useState('');
-  const [imageAnalysis, setImageAnalysis] = useState('');
   const [showCamera, setShowCamera] = useState(false);
 
   const videoRef = useRef(null);
@@ -16,11 +12,16 @@ const PlantGrowthTracker = () => {
   const fileInputRef = useRef(null);
 
   const handleUpload = async (imageBlob) => {
-    const formData = new FormData();
-    formData.append('plantId', plantId);
-    formData.append('image', imageBlob, 'uploaded.jpg');
+    if (!plantId) {
+      alert('식물 ID를 입력해주세요.');
+      return;
+    }
 
-    await fetch('/api/upload', {
+    const formData = new FormData();
+    formData.append('file', imageBlob, 'uploaded.jpg');
+    formData.append('notes', '');
+
+    await fetch(`/api/plants/${plantId}/upload`, {
       method: 'POST',
       body: formData,
     });
@@ -33,7 +34,7 @@ const PlantGrowthTracker = () => {
     if (!file) return;
 
     await handleUpload(file);
-    e.target.value = ''; // input 초기화
+    e.target.value = '';
   };
 
   const startCamera = async () => {
@@ -73,29 +74,22 @@ const PlantGrowthTracker = () => {
   };
 
   const loadImages = async () => {
-    const res = await fetch('/api/images');
-    const data = await res.json();
-    setImageGallery(data);
-  };
-
-  const createTimelapse = async () => {
-    const res = await fetch(`/api/timelapse/${timelapsePlantId}`);
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    setModalImage(url);
-    setModalShow(true);
-  };
-
-  const openImageModal = (imgUrl, analysis) => {
-    setModalImage(imgUrl);
-    setImageAnalysis(analysis);
-    setModalShow(true);
+    if (!plantId) return;
+    try {
+      const res = await fetch(`/api/plants/${plantId}/images`);
+      const data = await res.json();
+      setImageGallery(data.images || []);
+    } catch (err) {
+      console.error("이미지 불러오기 실패:", err);
+    }
   };
 
   useEffect(() => {
-    loadImages();
+    if (plantId) {
+      loadImages();
+    }
     return () => stopCamera();
-  }, []);
+  }, [plantId]);
 
   return (
     <div>
@@ -136,63 +130,25 @@ const PlantGrowthTracker = () => {
           </div>
         </div>
 
-        <div className="card mb-4">
-          <div className="card-header d-flex justify-content-between align-items-center">
-            <h5 className="mb-0">식물 이미지 갤러리</h5>
-            <button className="btn btn-sm btn-success" onClick={loadImages}>새로고침</button>
-          </div>
-          <div className="card-body">
-            <div className="row g-3">
+        {/* ✅ 이미지 갤러리 */}
+        {imageGallery.length > 0 && (
+          <div className="card">
+            <div className="card-header">📸 업로드된 이미지</div>
+            <div className="card-body d-flex flex-wrap gap-3">
               {imageGallery.map((img, idx) => (
-                <div className="col-md-3" key={idx}>
+                <div key={idx} className="text-center">
                   <img
-                    src={img.url}
-                    alt="식물"
-                    className="img-fluid rounded"
-                    onClick={() => openImageModal(img.url, img.analysis)}
-                    style={{ cursor: 'pointer' }}
+                    src={`/static/${img.filename}`}
+                    alt="plant"
+                    style={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px' }}
                   />
+                  <div style={{ fontSize: '0.8em' }}>{img.created_at}</div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-
-        <div className="card mb-4">
-          <div className="card-header">
-            <h5>타임랩스 생성</h5>
-          </div>
-          <div className="card-body">
-            <div className="mb-3">
-              <label htmlFor="timelapsePlantId" className="form-label">식물 ID</label>
-              <input type="text" className="form-control" id="timelapsePlantId" value={timelapsePlantId} onChange={(e) => setTimelapsePlantId(e.target.value)} />
-            </div>
-            <button className="btn btn-primary" onClick={createTimelapse}>타임랩스 생성</button>
-            <div className="mt-3">
-              {modalImage && <img src={modalImage} className="img-fluid" alt="타임랩스" />}
-            </div>
-          </div>
-        </div>
+        )}
       </div>
-
-      {modalShow && (
-        <div className="custom-modal-overlay">
-          <div className="custom-modal">
-            <div className="modal-header">
-              <h5>이미지 상세 정보</h5>
-              <button onClick={() => setModalShow(false)} className="close-btn">×</button>
-            </div>
-            <div className="modal-body">
-              <img src={modalImage} alt="상세 이미지" className="modal-image" />
-              <div dangerouslySetInnerHTML={{ __html: imageAnalysis }}></div>
-            </div>
-            <div className="modal-footer">
-              <button className="share-btn" onClick={() => alert('카카오톡 공유 로직 삽입 예정')}>공유하기</button>
-              <button className="close-btn" onClick={() => setModalShow(false)}>닫기</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
