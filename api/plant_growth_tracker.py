@@ -292,11 +292,6 @@ def analyze_plant_health(image_path: Path) -> dict:
     image = Image.open(image_path).convert("RGB")
     annotated = image.copy()
 
-    # ✅ 2. 시각화 처리 예시 (빨간 사각형 추가)
-    from PIL import ImageDraw
-    draw = ImageDraw.Draw(annotated)
-    draw.rectangle([(50, 50), (150, 150)], outline="red", width=5)  # 예시 박스
-
     # ✅ 3. 저장 경로 구성
     annotated_filename = f"annotated_{image_path.name}"
     annotated_path = ANNOTATED_DIR / annotated_filename
@@ -305,13 +300,6 @@ def analyze_plant_health(image_path: Path) -> dict:
     annotated.save(annotated_path)
 
     # ✅ 5. 분석 결과 리턴 (시각화 이미지 경로 포함 가능)
-    return {
-        "health_score": 85,
-        "growth_stage": "성장기",
-        "issues": ["수분 부족 의심"],
-        "recommendations": ["물 주기를 줄여보세요."],
-        "annotated_url": f"/static/annotated/{annotated_filename}"  # 👈 프론트엔드에서 띄우기 쉬움
-    }
 
 def create_timelapse(images: List[Path], output_path: Path, fps: int = 2):
     """이미지 목록으로부터 타임랩스 비디오를 생성합니다."""

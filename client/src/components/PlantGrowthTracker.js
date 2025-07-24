@@ -6,6 +6,7 @@ const PlantGrowthTracker = () => {
   const [plantId, setPlantId] = useState('');
   const [imageGallery, setImageGallery] = useState([]);
   const [showCamera, setShowCamera] = useState(false);
+  const [growthData, setGrowthData] = useState(null); // ✅ 분석 결과 상태 추가
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -84,6 +85,23 @@ const PlantGrowthTracker = () => {
     }
   };
 
+  const analyzeGrowth = async () => {
+    if (!plantId) {
+      alert("식물 ID를 입력해주세요.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/growth-analysis/${plantId}`);
+      if (!res.ok) throw new Error("분석 요청 실패");
+      const data = await res.json();
+      setGrowthData(data.growth);
+    } catch (err) {
+      console.error("성장 분석 실패:", err);
+      alert("성장 분석 중 오류가 발생했습니다.");
+    }
+  };
+
   useEffect(() => {
     if (plantId) {
       loadImages();
@@ -102,12 +120,20 @@ const PlantGrowthTracker = () => {
           <div className="card-body">
             <div className="mb-3">
               <label htmlFor="plantId" className="form-label">식물 ID</label>
-              <input type="text" className="form-control" id="plantId" value={plantId} onChange={(e) => setPlantId(e.target.value)} required />
+              <input
+                type="text"
+                className="form-control"
+                id="plantId"
+                value={plantId}
+                onChange={(e) => setPlantId(e.target.value)}
+                required
+              />
             </div>
 
             <div className="mb-3 d-flex gap-2">
               <button className="btn btn-outline-primary" onClick={startCamera}>📷 카메라 열기</button>
               <button className="btn btn-outline-secondary" onClick={() => fileInputRef.current.click()}>🖼️ 사진 업로드</button>
+              <button className="btn btn-outline-success" onClick={analyzeGrowth}>📊 성장 분석</button>
               <input
                 type="file"
                 accept="image/*"
@@ -130,7 +156,6 @@ const PlantGrowthTracker = () => {
           </div>
         </div>
 
-        {/* ✅ 이미지 갤러리 */}
         {imageGallery.length > 0 && (
           <div className="card">
             <div className="card-header">📸 업로드된 이미지</div>
@@ -145,6 +170,22 @@ const PlantGrowthTracker = () => {
                   <div style={{ fontSize: '0.8em' }}>{img.created_at}</div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {growthData && (
+          <div className="card mt-4">
+            <div className="card-header">📈 성장 분석 결과</div>
+            <div className="card-body">
+              <p><strong>{growthData.summary}</strong></p>
+              <ul>
+                {growthData.growth_rates_percent.map((rate, idx) => (
+                  <li key={idx}>
+                    📌 {idx + 1} → {idx + 2} 이미지 성장률: <strong>{rate}%</strong>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         )}

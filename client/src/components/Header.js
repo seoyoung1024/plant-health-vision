@@ -43,13 +43,13 @@ const Header = () => {
             홈
           </a>
           <Link to="/plantgrowthtracker" className="nav-link">
-            식물 관리
+            식물 성장
           </Link>
-          <a href="#" className="nav-link">
-            기능 소개
+          <a href="http://13.208.122.37:3000/" className="nav-link">
+            정원 꾸미기
           </a>
-          <a href="#" className="nav-link">
-            문의하기
+          <a href="http://15.168.150.125:3001/" className="nav-link">
+            식물 추천
           </a>
         </nav>
 
