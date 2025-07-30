@@ -28,13 +28,12 @@ from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.openapi.utils import get_openapi
 from growth_analysis import router as growth_router
-from db import db
+
 
 
 # 앱 생성
 app = FastAPI()
 load_dotenv()
-
 app.include_router(growth_router)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -107,7 +106,6 @@ S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
 S3_FOLDER = os.getenv("S3_FOLDER")
 
 
-
 s3_client = boto3.client(
     "s3",
     region_name=AWS_REGION,
@@ -158,11 +156,11 @@ def get_plant_images(plant_name: str, sample_count: int = 10):
 # DB 연결 함수
 def get_db():
     return mysql.connector.connect(
-        host="15.168.150.125",
+        host="13.208.122.37",
         port=3306,
-        user="root",
+        user="testuser",
         password="1234",
-        database="plant_data"
+        database="plantmate"
     )
 
 # JWT 생성 함수
@@ -176,10 +174,13 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    user_id: int
 
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
+    address: Optional[str] = None  # address 필드 추가
+
 
 class LoginRequest(BaseModel):
     email: str
@@ -191,23 +192,26 @@ class LoginRequest(BaseModel):
 async def register_user(user: UserCreate):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM users WHERE email = %s", (user.email,))
+    cursor.execute("SELECT user_id FROM users WHERE email = %s", (user.email,))
     if cursor.fetchone():
         cursor.close()
         conn.close()
         raise HTTPException(status_code=400, detail="이미 존재하는 이메일입니다.")
+    
     hashed_pw = pwd_context.hash(user.password)
+
     cursor.execute(
-        "INSERT INTO users (email, hashed_password, created_at) VALUES (%s, %s, %s)",
-        (user.email, hashed_pw, get_kst_now())
+        "INSERT INTO users (email, hashed_password, address, created_at) VALUES (%s, %s, %s, %s)",
+        (user.email, hashed_pw, user.address, get_kst_now())
     )
     conn.commit()
     cursor.close()
     conn.close()
+
     return {"success": True, "message": "회원가입이 완료되었습니다."}
 
-# ✅ 로그인 (토큰 발급)
-@app.post("/api/login", response_model=Token)
+
+@app.post("/api/login", response_model=Token) 
 async def login(request: LoginRequest):
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
@@ -219,8 +223,14 @@ async def login(request: LoginRequest):
     if not user or not pwd_context.verify(request.password, user["hashed_password"]):
         raise HTTPException(status_code=400, detail="잘못된 이메일 또는 비밀번호입니다.")
 
-    access_token = create_access_token({"sub": user["email"]})
-    return {"access_token": access_token, "token_type": "bearer"}
+    # JWT에는 여전히 email 또는 id를 sub로 포함 (선택)
+    access_token = create_access_token({"sub": str(user["user_id"])})  # 👈 여기서 id를 sub로
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user_id": user["user_id"]  # ✅ 응답에 포함!
+    }
 
 
 # ✅ 로그인
@@ -301,241 +311,90 @@ def analyze_plant_health(image_path: Path) -> dict:
 
     # ✅ 5. 분석 결과 리턴 (시각화 이미지 경로 포함 가능)
 
-def create_timelapse(images: List[Path], output_path: Path, fps: int = 2):
-    """이미지 목록으로부터 타임랩스 비디오를 생성합니다."""
-    if not images:
-        raise ValueError("No images provided for timelapse")
-    
-    # 임시 디렉토리 생성
-    temp_dir = Path(tempfile.mkdtemp())
-    try:
-        # 이미지 파일을 임시 디렉토리에 복사하고 리사이즈
-        temp_images = []
-        for i, img_path in enumerate(images):
-            if not img_path.exists():
-                continue
-                
-            # 이미지 로드 및 리사이즈 (옵션)
-            img = Image.open(img_path)
-            img = img.resize((640, 480))  # 원하는 크기로 조정
-            
-            # 임시 파일로 저장
-            temp_img_path = temp_dir / f"frame_{i:04d}.png"
-            img.save(temp_img_path)
-            temp_images.append(temp_img_path)
-        
-        if not temp_images:
-            raise ValueError("No valid images found for timelapse")
-        
-        # imageio로 비디오 생성
-        with iio.imopen(output_path, 'w', plugin='pyav', fps=fps) as video:
-            for img_file in temp_images:
-                frame = iio.imread(img_file)
-                video.write(frame)
-    
-    finally:
-        # 임시 디렉토리 정리
-        if temp_dir.exists():
-            shutil.rmtree(temp_dir)
 
-# API 엔드포인트
+# presigned URL 생성 함수
+def create_presigned_url(bucket_name, object_name, expiration=3600):
+    return s3_client.generate_presigned_url(
+        'get_object',
+        Params={'Bucket': bucket_name, 'Key': object_name},
+        ExpiresIn=expiration
+    )
+
 @app.post("/api/plants/{plant_id}/upload")
 async def upload_plant_image(
     plant_id: str,
     file: UploadFile = File(...),
-    notes: str = Form(""),
+    notes: str = Form("")
 ):
     try:
-        # 1. 디렉토리 확인
-        if not UPLOAD_DIR.exists():
-            print("📁 업로드 디렉토리 생성")
-            UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+        ext = Path(file.filename).suffix
+        if ext.lower() not in [".jpg", ".jpeg", ".png"]:
+            raise HTTPException(status_code=400, detail="이미지 파일만 업로드 가능합니다.")
 
-        # 2. 파일 저장
-        file_extension = Path(file.filename).suffix
-        if file_extension.lower() not in ['.jpg', '.jpeg', '.png', '.bmp']:
-            raise HTTPException(status_code=400, detail="이미지 파일만 허용됩니다.")
-
-        filename = save_upload_file(file, UPLOAD_DIR, plant_id)
-        file_path = UPLOAD_DIR / filename
+        timestamp = get_kst_now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{timestamp}_{plant_id}{ext}"
+        s3_key = f"plantimage/user_images/{filename}"  
 
 
-        print("✅ 파일 저장 완료")
+        # S3 업로드
+        s3_client.upload_fileobj(file.file, S3_BUCKET_NAME, s3_key)
+        print("✅ S3 업로드 성공:", s3_key)
 
-        # 3. 이미지 분석
-        analysis = analyze_plant_health(file_path)
-        print("🧪 분석 완료:", analysis)
+        # presigned URL 생성
+        s3_url = create_presigned_url(S3_BUCKET_NAME, s3_key)
+        print("🔗 presigned URL 생성됨:", s3_url)
 
-        # 4. 메타데이터 구성
         image_id = str(uuid.uuid4())
         image_data = {
             "id": image_id,
             "plant_id": plant_id,
             "filename": filename,
-            "path": str(file_path),
+            "s3_key": s3_key,
+            "s3_url": s3_url,
             "notes": notes,
-            "created_at": datetime.utcnow(),
-            "analysis": analysis
+            "created_at": datetime.utcnow()
         }
-
-        # 5. DB 구조 확인 및 저장
-        if "images" not in db:
-            db["images"] = []
-
-        db["images"].append(image_data)
-
-        if "plants" not in db:
-            db["plants"] = {}
-
-        if plant_id not in db["plants"]:
-            db["plants"][plant_id] = {
-                "id": plant_id,
-                "created_at": datetime.utcnow(),
-                "images": []
-            }
-
-        db["plants"][plant_id]["images"].append(image_id)
-
-        print("💾 DB 저장 완료")
         return {
             "success": True,
             "image_id": image_id,
-            "analysis": analysis
+            "s3_url": s3_url
         }
 
     except Exception as e:
-        print("❌ 서버 오류:", str(e))
-        raise HTTPException(status_code=500, detail=f"서버 오류 발생: {str(e)}")
+        print("❌ 업로드 실패:", str(e))
+        raise HTTPException(status_code=500, detail=f"서버 오류: {str(e)}")
 
 @app.get("/api/plants/{plant_id}/images")
 async def get_plant_images(plant_id: str):
-    """특정 식물의 모든 이미지 목록을 반환합니다."""
-    if plant_id not in db["plants"]:
-        raise HTTPException(status_code=404, detail="Plant not found")
-    
-    images = [img for img in db["images"] if img["plant_id"] == plant_id]
-    return {"success": True, "images": images}
+    """S3에서 plant_id와 관련된 이미지 목록을 presigned URL로 반환합니다."""
+    try:
+        prefix = f"plantimage/user_images/"
+        response = s3_client.list_objects_v2(Bucket=S3_BUCKET_NAME, Prefix=prefix)
 
-# @app.post("/api/timelapse/create")
-# async def create_plant_timelapse(request: TimelapseRequest):
-#     """식물의 타임랩스 비디오를 생성합니다."""
-#     try:
-#         # 식물 이미지 필터링
-#         images = [img for img in db["images"] if img["plant_id"] == request.plant_id]
-        
-#         # 날짜 필터 적용
-#         if request.start_date:
-#             images = [img for img in images if img["created_at"] >= request.start_date]
-#         if request.end_date:
-#             images = [img for img in images if img["created_at"] <= request.end_date]
-        
-#         # 생성일 기준 정렬
-#         images.sort(key=lambda x: x["created_at"])
-        
-#         if not images:
-#             raise HTTPException(status_code=400, detail="No images found for the specified criteria")
-        
-#         # 타임랩스 생성
-#         timelapse_id = f"timelapse_{request.plant_id}_{uuid.uuid4()}.mp4"
-#         output_path = TIMELAPSE_DIR / timelapse_id
-        
-#         image_paths = [Path(img["path"]) for img in images]
-#         create_timelapse(image_paths, output_path)
-        
-#         # 타임랩스 정보 저장
-#         db["timelapses"][timelapse_id] = {
-#             "id": timelapse_id,
-#             "plant_id": request.plant_id,
-#             "path": str(output_path),
-#             "created_at": datetime.utcnow(),
-#             "image_count": len(images)
-#         }
-        
-#         return {
-#             "success": True,
-#             "timelapse_id": timelapse_id,
-#             "url": f"/static/timelapses/{timelapse_id}"
-#         }
-    
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
+        if "Contents" not in response:
+            return {"success": True, "images": []}
 
-# @app.get("/api/analyze/{image_id}")
-# async def analyze_image(image_id: str):
-#     """특정 이미지에 대한 분석 결과를 반환합니다."""
-#     image = next((img for img in db["images"] if img["id"] == image_id), None)
-    
-#     if not image:
-#         raise HTTPException(status_code=404, detail="Image not found")
-    
-#     return {"success": True, "analysis": image.get("analysis", {})}
+        images = []
+        for obj in response["Contents"]:
+            key = obj["Key"]
+            if plant_id.lower() in key.lower() and key.lower().endswith((".jpg", ".jpeg", ".png")):
+                url = create_presigned_url(S3_BUCKET_NAME, key)
+                images.append({
+                    "filename": key.split("/")[-1],
+                    "s3_key": key,
+                    "presigned_url": url,
+                    "created_at": obj.get("LastModified")
+                })
 
-# @app.post("/api/share/sns")
-# async def share_to_sns(
-#     image_id: Optional[str] = None,
-#     timelapse_id: Optional[str] = None,
-#     platform: str = "instagram"
-# ):
-#     """이미지나 타임랩스를 SNS에 공유합니다."""
-#     try:
-#         # 실제 SNS API 연동이 필요한 부분 (예시로 가상의 응답 반환)
-#         if image_id:
-#             image = next((img for img in db["images"] if img["id"] == image_id), None)
-#             if not image:
-#                 raise HTTPException(status_code=404, detail="Image not found")
-            
-#             # 여기에 실제 SNS 공유 로직 구현
-#             return {
-#                 "success": True,
-#                 "message": f"Image shared to {platform}",
-#                 "url": f"/static/{image['filename']}"
-#             }
+        if not images:
+            raise HTTPException(status_code=404, detail="해당 식물의 이미지가 없습니다.")
         
-#         elif timelapse_id:
-#             timelapse = db["timelapses"].get(timelapse_id)
-#             if not timelapse:
-#                 raise HTTPException(status_code=404, detail="Timelapse not found")
-            
-#             # 여기에 실제 SNS 공유 로직 구현
-#             return {
-#                 "success": True,
-#                 "message": f"Timelapse shared to {platform}",
-#                 "url": f"/static/timelapses/{timelapse_id}"
-#             }
-        
-#         else:
-#             raise HTTPException(status_code=400, detail="Either image_id or timelapse_id must be provided")
-    
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
+        return {"success": True, "images": images}
 
-# 정적 파일 서빙을 위한 엔드포인트
-@app.get("/static/{filename}")
-async def serve_static(filename: str):
-    file_path = UPLOAD_DIR / filename
-    if file_path.exists():
-        return FileResponse(file_path)
-    
-    file_path = TIMELAPSE_DIR / filename
-    if file_path.exists():
-        return FileResponse(file_path)
-    
-    raise HTTPException(status_code=404, detail="File not found")
+    except Exception as e:
+        print("🔥 이미지 로딩 오류:", e)
+        raise HTTPException(status_code=500, detail=f"서버 오류: {str(e)}")
 
-# 테스트용 루트 엔드포인트
-# @app.get("/")
-# async def root():
-#     return {
-#         "message": "Plant Growth Tracker API",
-#         "version": "1.0.0",
-#         "endpoints": [
-#             {"path": "/api/plants/{plant_id}/upload", "method": "POST", "description": "Upload plant image"},
-#             {"path": "/api/plants/{plant_id}/images", "method": "GET", "description": "Get plant images"},
-#             {"path": "/api/timelapse/create", "method": "POST", "description": "Create timelapse"},
-#             {"path": "/api/analyze/{image_id}", "method": "GET", "description": "Analyze plant image"},
-#             {"path": "/api/share/sns", "method": "POST", "description": "Share to social media"}
-#         ]
-#     }
 
 # 애플리케이션 실행 (개발용)
 if __name__ == "__main__":

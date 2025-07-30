@@ -6,7 +6,7 @@ const PlantGrowthTracker = () => {
   const [plantId, setPlantId] = useState('');
   const [imageGallery, setImageGallery] = useState([]);
   const [showCamera, setShowCamera] = useState(false);
-  const [growthData, setGrowthData] = useState(null); // ✅ 분석 결과 상태 추가
+  const [growthData, setGrowthData] = useState(null);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -33,7 +33,6 @@ const PlantGrowthTracker = () => {
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     await handleUpload(file);
     e.target.value = '';
   };
@@ -59,7 +58,6 @@ const PlantGrowthTracker = () => {
   const capturePhoto = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
-
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
@@ -163,10 +161,11 @@ const PlantGrowthTracker = () => {
               {imageGallery.map((img, idx) => (
                 <div key={idx} className="text-center">
                   <img
-                    src={`/static/${img.filename}`}
-                    alt="plant"
-                    style={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px' }}
-                  />
+  src={img.presigned_url || img.s3_url}
+  alt="plant"
+  style={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px', alignItems:'center' }}
+/>
+
                   <div style={{ fontSize: '0.8em' }}>{img.created_at}</div>
                 </div>
               ))}
@@ -174,24 +173,44 @@ const PlantGrowthTracker = () => {
           </div>
         )}
 
-        {growthData && (
-          <div className="card mt-4">
-            <div className="card-header">📈 성장 분석 결과</div>
-            <div className="card-body">
-              <p><strong>{growthData.summary}</strong></p>
-              <ul>
-                {growthData.growth_rates_percent.map((rate, idx) => (
-                  <li key={idx}>
-                    📌 {idx + 1} → {idx + 2} 이미지 성장률: <strong>{rate}%</strong>
-                  </li>
-                ))}
-              </ul>
-            </div>
+{growthData && (
+  <div className="card mt-4">
+    <div className="card-header">📈 성장 분석 결과</div>
+    <div className="card-body">
+      <p><strong>{growthData.summary}</strong></p>
+      <ul>
+        {growthData.growth_rates_percent.map((rate, idx) => (
+          <li key={idx}>
+            📌 {idx + 1} → {idx + 2} 이미지 성장률: <strong>{rate}%</strong>
+          </li>
+        ))}
+      </ul>
+
+      {/* ✅ 성장 리포트 추가 */}
+      {growthData.report && (
+        <div className="mt-4">
+          <h6>📄 성장 리포트</h6>
+          <div
+            style={{
+              backgroundColor: "#f9f9f9",
+              border: "1px solid #ccc",
+              padding: "12px",
+              borderRadius: "6px",
+              whiteSpace: "pre-line",
+              fontSize: "0.95em"
+            }}
+          >
+            {growthData.report}
           </div>
-        )}
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );
 };
 
-export default PlantGrowthTracker;
+export default PlantGrowthTracker;  

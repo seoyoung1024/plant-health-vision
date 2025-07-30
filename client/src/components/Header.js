@@ -45,9 +45,48 @@ const Header = () => {
           <Link to="/plantgrowthtracker" className="nav-link">
             식물 성장
           </Link>
-          <a href="http://13.208.122.37:3000/" className="nav-link">
-            정원 꾸미기
-          </a>
+<button
+  className="nav-link"
+  onClick={(e) => {
+    console.log("클릭됨");
+    e.preventDefault();
+
+    const user_id = localStorage.getItem("user_id");
+    const token = localStorage.getItem("token");
+
+    if (!user_id || !token) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
+    // Unity 페이지 새 창 열기
+    const unityWindow = window.open("http://13.208.122.37:3000", "_blank");
+    console.log("🪟 unityWindow 객체:", unityWindow);  // ← 이거 꼭 추가
+        // 🔍 확인용 로그 추가
+    console.log("🔊 window.open 실행됨");
+    console.log("📦 보내는 user_id:", user_id);
+    console.log("📦 보내는 token:", token);
+    // 로딩 후 메시지 전달
+    setTimeout(() => {
+      if (!unityWindow) {
+    console.warn("❌ unityWindow가 null입니다. 팝업 차단 또는 CORS 문제");
+    return;
+  }
+      console.log("🚀 postMessage 실행");
+      unityWindow.postMessage(
+        {
+          type: "LOGIN_INFO",
+          user_id,
+          token,
+        },
+        "http://13.208.122.37:3000"
+      );
+    }, 2000);
+  }}
+>
+  정원 꾸미기
+</button>
+
           <a href="http://15.168.150.125:3001/" className="nav-link">
             식물 추천
           </a>
