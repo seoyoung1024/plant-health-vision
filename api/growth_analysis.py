@@ -108,15 +108,24 @@ def analyze_image_from_url(image_url: str, image_key: str = None) -> float:
 
 def generate_growth_report(plant_id: str, growth_data: dict) -> str:
     prompt = f"""
-식물 이름: {plant_id}
-식물의 성장률 분석 결과:
-- 각 시점별 비율: {growth_data['ratios']}
-- 성장 차이: {growth_data['growth_diffs']}
-- 성장률(%): {growth_data['growth_rates_percent']}
-- 요약: {growth_data['summary']}
+        식물 이름: {plant_id}
+        식물의 성장률 분석 결과:
+        - 각 시점별 비율: {ratios}
+        - 성장 차이: {growth_diffs}
+        - 성장률(%): {growth_rates_percent}
+        - 요약: {summary}
 
-이 데이터를 바탕으로 식물의 성장 과정을 사용자에게 설명해주는 짧은 리포트를 작성해주세요. 사용자 친화적이고 자연스러운 말투로, 한국어로 작성해주세요.
-"""
+        이 데이터를 바탕으로 사용자에게 친절하게 성장 리포트를 작성해주세요.
+        내용에는 다음을 반드시 포함해주세요:
+
+        1. 성장률 데이터를 기반으로 식물의 현재 성장 상태 설명
+        2. 두 시점 사진에서 관찰되는 시각적인 변화
+        3. 성장이 나타난 원인에 대한 간단한 추측 (예: 물, 햇빛, 온도 등)
+        4. 앞으로의 관리 팁이나 권장 사항
+        5. 해당 식물의 특징 (성장 속도, 최대 크기, 키우기 쉬운지 여부 등)
+        6. 지금 상태 기준으로 앞으로 얼마나 더 성장할 수 있을지 예상
+
+        → 자연스럽고 친절한 말투로, 한국어로 작성해주세요."""
     response = client.chat.completions.create(
         model="gpt-4",
         messages=[
