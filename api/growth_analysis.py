@@ -45,66 +45,57 @@ def find_non_white_bottom(image: np.ndarray, threshold=240) -> int:
 
 def extract_plant_pot_ratio(image: np.ndarray) -> (float, np.ndarray):
     height, width = image.shape[:2]
-    g_channel = image[:, :, 1]
-    plant_mask = cv2.inRange(g_channel, 120, 255)
-    contours, _ = cv2.findContours(plant_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # ✅ 1. HSV 기반 초록색 필터링
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    lower_green = np.array([35, 50, 50])
+    upper_green = np.array([85, 255, 255])
+    mask = cv2.inRange(hsv, lower_green, upper_green)
+
+    # ✅ 2. 잡음 제거 (열림 연산)
+    kernel = np.ones((5, 5), np.uint8)
+    clean_mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+
+    # ✅ 3. 컨투어 찾기
+    contours, _ = cv2.findContours(clean_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if not contours:
         return 0.0, image
 
-    bottom_area = image[int(height * 0.75):, :]
-    gray = cv2.cvtColor(bottom_area, cv2.COLOR_BGR2GRAY)
-    _, pot_mask = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
-    pot_contours, _ = cv2.findContours(pot_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    has_valid_pot = False
-    center_x = width // 2
-
-    if pot_contours:
-        filtered_pots = []
-        for cnt in pot_contours:
-            x, y, w, h = cv2.boundingRect(cnt)
-            if 0.5 < w / h < 2.0 and h > 10:
-                distance_to_center = abs((x + w // 2) - center_x)
-                filtered_pots.append((cnt, distance_to_center))
-        if filtered_pots:
-            pot_cnt, _ = min(filtered_pots, key=lambda item: item[1])
-            px, py, pw, ph = cv2.boundingRect(pot_cnt)
-            pot_top = int(height * 0.75) + py
-            pot_bottom = pot_top + ph
-            pot_height = pot_bottom - pot_top
-            has_valid_pot = True
-
-    if not has_valid_pot:
-        pot_bottom = find_non_white_bottom(image)
-        pot_top = pot_bottom - int(height * 0.1)
-        pot_height = pot_bottom - pot_top
-        px, pw = 0, width
-
-    plant_tops = []
-    plant_bottoms = []
+    # ✅ 4. 식물 가장 위 + 가장 아래 위치 측정
+    ys = []
     for cnt in contours:
-        if cv2.contourArea(cnt) < 100:
+        if cv2.contourArea(cnt) < 300:  # 너무 작은 것은 무시
             continue
         x, y, w, h = cv2.boundingRect(cnt)
-        if y + h < pot_bottom:
-            plant_tops.append(y)
-            plant_bottoms.append(y + h)
+        ys.append((y, y + h))
 
-    if not plant_tops:
+    if not ys:
         return 0.0, image
 
-    plant_top = min(plant_tops)
-    plant_bottom = max(plant_bottoms)
+    plant_top = min(y[0] for y in ys)
+    plant_bottom = max(y[1] for y in ys)
     plant_height = plant_bottom - plant_top
 
-    ratio = round(plant_height / pot_height, 2)
-    ratio = max(1.0, min(ratio, 300.0))
+    # ✅ 5. 화분은 전체 하단 25%로 가정
+    pot_top = int(height * 0.75)
+    pot_bottom = height
+    pot_height = pot_bottom - pot_top
 
+    if pot_height <= 0:
+        return 0.0, image
+
+    # ✅ 6. 비율 계산
+    ratio = round(plant_height / pot_height, 2)
+    ratio = max(1.0, min(ratio, 300.0))  # 너무 낮거나 높으면 잘림 방지
+
+    # ✅ 7. 시각화
     annotated = image.copy()
     cv2.rectangle(annotated, (0, plant_top), (width, plant_bottom), (0, 255, 0), 2)
-    cv2.rectangle(annotated, (px, pot_top), (px + pw, pot_bottom), (255, 0, 0), 2)
+    cv2.rectangle(annotated, (0, pot_top), (width, pot_bottom), (255, 0, 0), 2)
     cv2.putText(annotated, f"Ratio: {ratio}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+
     return ratio, annotated
+
 
 def analyze_image_from_url(image_url: str, image_key: str = None) -> float:
     response = requests.get(image_url, stream=True)
