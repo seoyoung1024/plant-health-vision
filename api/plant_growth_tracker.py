@@ -29,8 +29,6 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi.openapi.utils import get_openapi
 from growth_analysis import router as growth_router
 
-
-
 # 앱 생성
 app = FastAPI()
 load_dotenv()
@@ -245,6 +243,8 @@ async def get_profile(current_user_email: str = Depends(verify_token)):
 
     if not user:
         raise HTTPException(status_code=404, detail="유저를 찾을 수 없습니다.")
+
+    print(f"✅ 로그인된 사용자 ID: {user['user_id']}")
     
     return {
         "email": user["email"],
@@ -313,7 +313,7 @@ def analyze_plant_health(image_path: Path) -> dict:
 
 
 # presigned URL 생성 함수
-def create_presigned_url(bucket_name, object_name, expiration=3600):
+def create_presigned_url(bucket_name, object_name, expiration=604800):  # ⏱️ 7일 = 60*60*24*7
     return s3_client.generate_presigned_url(
         'get_object',
         Params={'Bucket': bucket_name, 'Key': object_name},
@@ -325,6 +325,7 @@ async def upload_plant_image(
     plant_id: str,
     file: UploadFile = File(...),
     notes: str = Form("")
+    
 ):
     try:
         ext = Path(file.filename).suffix
@@ -399,4 +400,4 @@ async def get_plant_images(plant_id: str):
 # 애플리케이션 실행 (개발용)
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("plant_growth_tracker:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("plant_growth_tracker:app", host="0.0.0.0", port=8000, reload=True) 

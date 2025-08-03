@@ -7,6 +7,8 @@ const PlantGrowthTracker = () => {
   const [imageGallery, setImageGallery] = useState([]);
   const [showCamera, setShowCamera] = useState(false);
   const [growthData, setGrowthData] = useState(null);
+  const [reportData, setReportData] = useState(null);
+  const [reports, setReports] = useState([]);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -89,31 +91,108 @@ const PlantGrowthTracker = () => {
       return;
     }
 
+    const token = localStorage.getItem("token");
+
     try {
-      const res = await fetch(`/api/growth-analysis/${plantId}`);
-      if (!res.ok) throw new Error("분석 요청 실패");
+      const res = await fetch(`/api/growth-analysis/${plantId}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("❌ 분석 실패 응답:", errText);
+        throw new Error("분석 요청 실패");
+      }
+
       const data = await res.json();
       setGrowthData(data.growth);
+
+      // ✅ 분석 결과를 UI에 바로 보여주도록 reportData에 저장
+      setReportData({
+        first_image_url: data.growth.first_image_url || '',
+        last_image_url: data.growth.last_image_url || '',
+        growth_rate_percent: data.growth.growth_rate_percent,
+        report: data.growth.report,
+      });
+
+      // ✅ 분석 완료 후 전체 리포트 목록 갱신
+      fetchAllReports();
     } catch (err) {
       console.error("성장 분석 실패:", err);
       alert("성장 분석 중 오류가 발생했습니다.");
     }
   };
 
+  const loadGrowthReport = async () => {
+    try {
+      const res = await fetch(`/api/growth-report/${plantId}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setReportData(data);
+    } catch (err) {
+      console.error("리포트 불러오기 실패:", err);
+    }
+  };
+
+  const fetchAllReports = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.warn("❗토큰이 없습니다. 로그인 필요");
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/growth-report/all', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.warn("리포트 불러오기 실패:", error);
+        return;
+      }
+
+      const data = await response.json();
+      console.log("받아온 리포트:", data);
+
+      if (Array.isArray(data)) {
+        setReports(data);
+      } else if (Array.isArray(data.reports)) {
+        setReports(data.reports);
+      } else if (data.plant_id) {
+        setReports([data]);
+      } else {
+        console.warn("리포트 형식 이상:", data);
+        setReports([]);
+      }
+    } catch (error) {
+      console.error("리포트 불러오기 오류:", error);
+    }
+  };
+
   useEffect(() => {
     if (plantId) {
       loadImages();
+      loadGrowthReport();
     }
     return () => stopCamera();
   }, [plantId]);
 
+  useEffect(() => {
+    fetchAllReports();
+  }, []);
+
   return (
     <div>
       <Header />
+      <title>PlantGrowthTracker</title>
       <div className="container mt-4">
+        {/* 업로드 & 분석 */}
         <div className="card mb-4">
           <div className="card-header">
-            <h5>식물 사진 촬영 또는 업로드</h5>
+            <h5>식물 성장 분석하기</h5>
           </div>
           <div className="card-body">
             <div className="mb-3">
@@ -127,11 +206,10 @@ const PlantGrowthTracker = () => {
                 required
               />
             </div>
-
             <div className="mb-3 d-flex gap-2">
-              <button className="btn btn-outline-primary" onClick={startCamera}>📷 카메라 열기</button>
-              <button className="btn btn-outline-secondary" onClick={() => fileInputRef.current.click()}>🖼️ 사진 업로드</button>
-              <button className="btn btn-outline-success" onClick={analyzeGrowth}>📊 성장 분석</button>
+              <button className="btn btn-outline-primary" onClick={startCamera}>카메라 열기</button>
+              <button className="btn btn-outline-secondary" onClick={() => fileInputRef.current.click()}>사진 업로드</button>
+              <button className="btn btn-outline-success" onClick={analyzeGrowth}>성장 분석</button>
               <input
                 type="file"
                 accept="image/*"
@@ -153,64 +231,76 @@ const PlantGrowthTracker = () => {
             <canvas ref={canvasRef} style={{ display: 'none' }} />
           </div>
         </div>
-
-        {imageGallery.length > 0 && (
-          <div className="card">
-            <div className="card-header">📸 업로드된 이미지</div>
-            <div className="card-body d-flex flex-wrap gap-3">
-              {imageGallery.map((img, idx) => (
-                <div key={idx} className="text-center">
+        {/* 최근 분석 결과 */}
+        {reportData && (
+          <div className="card mt-4 p-3 shadow">
+            <div className="card-header">
+              <h5>식물 성장 리포트</h5>
+            </div>
+            <div className="card-body">
+              <div className="horizontal-report-images">
+                <div className="report-image-block">
                   <img
-  src={img.presigned_url || img.s3_url}
-  alt="plant"
-  style={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px', alignItems:'center' }}
-/>
-
-                  <div style={{ fontSize: '0.8em' }}>{img.created_at}</div>
+                    src={reportData.first_image_url}
+                    alt="처음 사진"
+                    className="img-thumbnail"
+                    style={{ maxWidth: '180px', borderRadius: '10px' }}
+                  />
+                  <div className="mt-2 text-muted" style={{ fontSize: "0.85em" }}>
+                    최초 업로드
+                  </div>
                 </div>
-              ))}
+
+                <div className="fs-2 arrow-icon">→</div>
+
+                <div className="report-image-block">
+                  <img
+                    src={reportData.last_image_url}
+                    alt="최신 사진"
+                    className="img-thumbnail"
+                    style={{ maxWidth: '180px', borderRadius: '10px' }}
+                  />
+                  <div className="mt-2 text-muted" style={{ fontSize: "0.85em" }}>
+                    최근 업로드
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-3 fs-5">
+                <strong>총 성장률:</strong> {reportData.growth_rate_percent}%
+              </div>
+
+              {reportData.report && (
+                <div className="bg-light p-3 rounded border">
+                  <p className="mb-0" style={{ whiteSpace: 'pre-line' }}>{reportData.report}</p>
+                </div>
+              )}
             </div>
           </div>
         )}
 
-{growthData && (
-  <div className="card mt-4">
-    <div className="card-header">📈 성장 분석 결과</div>
-    <div className="card-body">
-      <p><strong>{growthData.summary}</strong></p>
-      <ul>
-        {growthData.growth_rates_percent.map((rate, idx) => (
-          <li key={idx}>
-            📌 {idx + 1} → {idx + 2} 이미지 성장률: <strong>{rate}%</strong>
-          </li>
-        ))}
-      </ul>
-
-      {/* ✅ 성장 리포트 추가 */}
-      {growthData.report && (
-        <div className="mt-4">
-          <h6>📄 성장 리포트</h6>
-          <div
-            style={{
-              backgroundColor: "#f9f9f9",
-              border: "1px solid #ccc",
-              padding: "12px",
-              borderRadius: "6px",
-              whiteSpace: "pre-line",
-              fontSize: "0.95em"
-            }}
-          >
-            {growthData.report}
+        {/* 전체 리포트 카드 */}
+        <div className="report-container">
+          <div className="report-grid">
+            {reports.map((report, index) => (
+              <div key={index} className="report-card">
+                <div className="image-row">
+                  <img src={report.first_image_url} alt="처음 이미지" />
+                  <img src={report.last_image_url} alt="마지막 이미지" />
+                </div>
+                <div className="report-info">
+                  <p><strong>식물 이름:</strong> {report.plant_name ?? '알 수 없음'}</p>
+                  <p><strong>날짜:</strong> {report.created_at ? new Date(report.created_at).toLocaleString() : 'N/A'}</p>
+                  <p><strong>성장률:</strong> {report.growth_rate_percent != null ? `${report.growth_rate_percent}%` : '측정 불가'}</p>
+                  <p><strong>요약:</strong> {report.summary ?? '없음'}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      )}
-    </div>
-  </div>
-)}
-
       </div>
     </div>
   );
 };
 
-export default PlantGrowthTracker;  
+export default PlantGrowthTracker;

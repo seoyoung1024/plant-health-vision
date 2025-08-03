@@ -7,10 +7,15 @@ import requests
 import tempfile
 import os
 import boto3
-from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 from openai import OpenAI
 from db import get_db
+from utils.auth import get_current_user_id  # 🔐 유저 ID 추출 함수 필요
+from utils.auth import get_current_user_id_or_none  # 없는 경우 None 반환하는 함수 추가 필요
+from fastapi import Request
+from zoneinfo import ZoneInfo
+from fastapi import Request
+
 
 load_dotenv()
 
@@ -22,7 +27,6 @@ AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY")
 AWS_SECRET_KEY = os.getenv("AWS_SECRET_KEY")
 S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
 S3_FOLDER = "plantimage/user_images"
-ANNOTATED_FOLDER = "plantimage/user_images/annotated"
 
 s3_client = boto3.client(
     "s3",
@@ -109,13 +113,6 @@ def analyze_image_from_url(image_url: str, image_key: str = None) -> float:
         tmp_path = tmp.name
     img = cv2.imread(tmp_path)
     ratio, annotated = extract_plant_pot_ratio(img)
-
-    if image_key:
-        annotated_filename = f"annotated_{os.path.basename(image_key)}"
-        annotated_path = os.path.join(tempfile.gettempdir(), annotated_filename)
-        cv2.imwrite(annotated_path, annotated)
-        s3_annotated_key = f"{ANNOTATED_FOLDER}/{annotated_filename}"
-        s3_client.upload_file(annotated_path, S3_BUCKET_NAME, s3_annotated_key)
     return ratio
 
 def generate_growth_report(plant_id: str, growth_data: dict) -> str:
@@ -156,11 +153,21 @@ def get_presigned_urls_for_plant(plant_id: str, max_count: int = 20) -> (List[st
     return urls, matched_keys
 
 @router.get("/api/growth-analysis/{plant_id}")
-def analyze_growth(plant_id: str):
+def analyze_growth(plant_id: str, request: Request):
+    # ✅ 선택적으로 로그인 시도
+    try:
+        user_id = get_current_user_id(request)
+        print("✅ 로그인된 사용자 ID:", user_id)
+    except:
+        print("❌ JWT 토큰 없음 → 비로그인")
+        user_id = None
+
+    # 이미지 가져오기
     image_urls, image_keys = get_presigned_urls_for_plant(plant_id)
     if len(image_urls) < 2:
         raise HTTPException(status_code=400, detail="성장 분석을 위해 최소 2장의 이미지가 필요합니다.")
 
+    # 분석 수행
     ratios = [analyze_image_from_url(url, key) for url, key in zip(image_urls, image_keys)]
     growth_diffs = [round(ratios[i + 1] - ratios[i], 2) for i in range(len(ratios) - 1)]
     growth_rates = [
@@ -175,6 +182,7 @@ def analyze_growth(plant_id: str):
         growth_rate_percent = round((ratios[-1] - ratios[0]) / ratios[0] * 100, 1)
         summary = f"총 성장률 비율 기준: {growth_rate_percent}%"
 
+    # 리포트 생성
     report = generate_growth_report(plant_id, {
         "ratios": ratios,
         "growth_diffs": growth_diffs,
@@ -182,26 +190,37 @@ def analyze_growth(plant_id: str):
         "summary": summary
     })
 
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO user_plant_growth_reports 
-        (user_plant_id, green_area, growth_rate_percent, summary, annotated_image_url, first_image_url, last_image_url, created_at)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-    """, (
-        1,  # TODO: 실제 user_plant_id로 교체
-        0,  # green_area placeholder
-        growth_rate_percent,
-        summary,
-        f"{ANNOTATED_FOLDER}/annotated_{os.path.basename(image_keys[-1])}",
-        s3_client.generate_presigned_url("get_object", Params={"Bucket": S3_BUCKET_NAME, "Key": image_keys[0]}, ExpiresIn=3600),
-        s3_client.generate_presigned_url("get_object", Params={"Bucket": S3_BUCKET_NAME, "Key": image_keys[-1]}, ExpiresIn=3600),
-        datetime.now()
-    ))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    # 이미지 URL 생성
+    first_image_url = s3_client.generate_presigned_url(
+        "get_object", Params={"Bucket": S3_BUCKET_NAME, "Key": image_keys[0]}, ExpiresIn=3600
+    )
+    last_image_url = s3_client.generate_presigned_url(
+        "get_object", Params={"Bucket": S3_BUCKET_NAME, "Key": image_keys[-1]}, ExpiresIn=3600
+    )
 
+    # DB 저장 (로그인 사용자 한정)
+    if user_id:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO user_plant_growth_reports 
+            (user_id, plant_name, growth_rate_percent, summary, report, first_image_url, last_image_url, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            user_id,
+            plant_id,
+            growth_rate_percent,
+            summary,
+            report,
+            first_image_url,
+            last_image_url,
+            datetime.now(ZoneInfo("Asia/Seoul"))
+        ))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+    # ✅ React에 필요한 구조로 반환
     return {
         "plant_id": plant_id,
         "growth": {
@@ -209,51 +228,25 @@ def analyze_growth(plant_id: str):
             "growth_diffs": growth_diffs,
             "growth_rates_percent": growth_rates,
             "summary": summary,
-            "report": report
+            "report": report,
+            "growth_rate_percent": growth_rate_percent,
+            "first_image_url": first_image_url,
+            "last_image_url": last_image_url
         }
     }
-from fastapi import APIRouter, HTTPException
-from sqlalchemy import text
 
-@router.get("/api/growth-report/{plant_id}")
-def get_latest_growth_report(plant_id: str):
+
+@router.get("/api/growth-report/all")
+def get_all_growth_reports(request: Request):
+    user_id = get_current_user_id(request)
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
         SELECT * FROM user_plant_growth_reports
-        WHERE user_plant_id = %s
+        WHERE user_id = %s
         ORDER BY created_at DESC
-        LIMIT 1
-    """, (1,))  # TODO: 실제 사용자 식물 ID(user_plant_id)로 대체하세요
-
-    result = cursor.fetchone()
-    cursor.close()
-    conn.close()
-
-    if not result:
-        raise HTTPException(status_code=404, detail="성장 리포트가 없습니다.")
-
-    return {
-        "plant_id": plant_id,
-        "first_image_url": result["first_image_url"],
-        "last_image_url": result["last_image_url"],
-        "annotated_url": result["annotated_image_url"],
-        "summary": result["summary"],
-        "report": result["report"],
-        "created_at": result["created_at"]
-    }
-@router.get("/api/growth-report/all/{plant_id}")
-def get_all_growth_reports(plant_id: str):
-    conn = get_db()
-    cursor = conn.cursor(dictionary=True)
-
-    cursor.execute("""
-        SELECT * FROM user_plant_growth_reports
-        WHERE user_plant_id = %s
-        ORDER BY created_at DESC
-    """, (1,))  # TODO: 실제 사용자 식물 ID(user_plant_id)로 교체
-
+    """, (user_id,))
     results = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -262,15 +255,15 @@ def get_all_growth_reports(plant_id: str):
         raise HTTPException(status_code=404, detail="리포트가 존재하지 않습니다.")
 
     return {
-        "plant_id": plant_id,
         "reports": [
             {
                 "report_id": row["report_id"],
+                "user_id": row["user_id"],
+                "plant_name": row["plant_name"],
                 "summary": row["summary"],
-                "report": row.get("report", ""),  # report 컬럼 비어있을 수도 있어서 안전하게 처리
+                "report": row.get("report", ""),
                 "first_image_url": row["first_image_url"],
                 "last_image_url": row["last_image_url"],
-                "annotated_url": row["annotated_image_url"],
                 "created_at": row["created_at"],
                 "growth_rate_percent": row["growth_rate_percent"]
             } for row in results
