@@ -39,6 +39,10 @@ app.use('/api', apiRoutes); // /api로 시작하는 요청은 FastAPI에 프록�
 // ✅ 2. React 정적 파일 서빙 (client/build)
 app.use(express.static(path.join(__dirname, '../client/build')));
 
+app.get('/', (req, res) => {
+  res.send('✅ Hello from Node.js!');
+});
+
 // ✅ 3. React SPA 라우팅 fallback (index.html)
 // API 요청이 아닌 모든 GET 요청에 대해 index.html을 서빙합니다.
 app.get(/^(?!\/api)/, (req, res) => {

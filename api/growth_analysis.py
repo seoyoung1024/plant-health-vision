@@ -15,7 +15,7 @@ from utils.auth import get_current_user_id_or_none  # 없는 경우 None 반환�
 from fastapi import Request
 from zoneinfo import ZoneInfo
 from fastapi import Request
-
+from urllib.parse import urlparse, unquote
 
 load_dotenv()
 
@@ -235,6 +235,11 @@ def analyze_growth(plant_id: str, request: Request):
         }
     }
 
+def extract_s3_key(url_or_key: str) -> str:
+    """presigned URL 또는 S3 키 문자열에서 키 추출"""
+    if url_or_key.startswith("http"):
+        return unquote(urlparse(url_or_key).path.lstrip("/"))
+    return url_or_key
 
 @router.get("/api/growth-report/all")
 def get_all_growth_reports(request: Request):
@@ -254,18 +259,25 @@ def get_all_growth_reports(request: Request):
     if not results:
         raise HTTPException(status_code=404, detail="리포트가 존재하지 않습니다.")
 
-    return {
-        "reports": [
-            {
-                "report_id": row["report_id"],
-                "user_id": row["user_id"],
-                "plant_name": row["plant_name"],
-                "summary": row["summary"],
-                "report": row.get("report", ""),
-                "first_image_url": row["first_image_url"],
-                "last_image_url": row["last_image_url"],
-                "created_at": row["created_at"],
-                "growth_rate_percent": row["growth_rate_percent"]
-            } for row in results
-        ]
-    }
+    refreshed = []
+    for row in results:
+        first_key = extract_s3_key(row["first_image_url"])
+        last_key = extract_s3_key(row["last_image_url"])
+
+        refreshed.append({
+            "report_id": row["report_id"],
+            "user_id": row["user_id"],
+            "plant_name": row["plant_name"],
+            "summary": row["summary"],
+            "report": row.get("report", ""),
+            "first_image_url": s3_client.generate_presigned_url(
+                "get_object", Params={"Bucket": S3_BUCKET_NAME, "Key": first_key}, ExpiresIn=604800
+            ),
+            "last_image_url": s3_client.generate_presigned_url(
+                "get_object", Params={"Bucket": S3_BUCKET_NAME, "Key": last_key}, ExpiresIn=604800
+            ),
+            "created_at": row["created_at"],
+            "growth_rate_percent": row["growth_rate_percent"]
+        })
+
+    return {"reports": refreshed}

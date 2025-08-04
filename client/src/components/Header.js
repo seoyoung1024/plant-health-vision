@@ -60,7 +60,7 @@ const Header = () => {
     }
 
     // Unity 페이지 새 창 열기
-    const unityWindow = window.open("http://13.208.122.37:3000", "_blank");
+    const unityWindow = window.open("/garden", "_blank");
     console.log("🪟 unityWindow 객체:", unityWindow);  // ← 이거 꼭 추가
         // 🔍 확인용 로그 추가
     console.log("🔊 window.open 실행됨");
@@ -79,7 +79,7 @@ const Header = () => {
           user_id,
           token,
         },
-        "http://13.208.122.37:3000"
+        "/garden"
       );
     }, 2000);
   }}

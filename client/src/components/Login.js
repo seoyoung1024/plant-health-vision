@@ -22,7 +22,6 @@ const Login = () => {
 
       if (response.ok) {
         localStorage.setItem('token', data.access_token);
-        localStorage.setItem("user_id", data.user_id);
         alert('로그인 성공!');
         navigate('/'); // 로그인 성공 후 페이지 이동
       } else {
