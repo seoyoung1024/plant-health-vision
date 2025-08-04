@@ -114,6 +114,7 @@ img {
   padding: 5px 0;
   position: relative;
   transition: var(--transition);
+  background-color: #D9E4E4;
 }
 
 .nav-link:hover, .nav-link.active {
