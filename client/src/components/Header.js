@@ -51,10 +51,9 @@ const Header = () => {
             console.log("클릭됨");
             e.preventDefault();
 
-            const user_id = localStorage.getItem("user_id");
             const token = localStorage.getItem("token");
 
-            if (!user_id || !token) {
+            if (!token) {
               alert("로그인이 필요합니다.");
               return;
             }
@@ -64,7 +63,6 @@ const Header = () => {
             console.log("🪟 unityWindow 객체:", unityWindow);  // ← 이거 꼭 추가
                 // 🔍 확인용 로그 추가
             console.log("🔊 window.open 실행됨");
-            console.log("📦 보내는 user_id:", user_id);
             console.log("📦 보내는 token:", token);
             // 로딩 후 메시지 전달
             setTimeout(() => {
@@ -76,10 +74,9 @@ const Header = () => {
               unityWindow.postMessage(
                 {
                   type: "LOGIN_INFO",
-                  user_id,
-                  token,
+                  token: token,
                 },
-                "/garden"
+                "https://plantmate.site"
               );
             }, 2000);
           }}
