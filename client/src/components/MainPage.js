@@ -4,7 +4,7 @@ import Carousel from "./Carousel";
 import Header from "./Header";
 
 const MainPage = () => {
-  const plantNames = ["감나무", "개망초", "엉겅퀴", "네잎클로바", "안개꽃", "개나리"];
+  const plantNames = ["감나무", "개망초", "튤립", "네잎클로바", "안개꽃", "개나리"];
   const [mixedPlantImages, setMixedPlantImages] = useState([]);
 
   useEffect(() => {
