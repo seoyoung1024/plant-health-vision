@@ -52,6 +52,8 @@ const Header = () => {
             e.preventDefault();
 
             const token = localStorage.getItem("token");
+            const user_id = localStorage.getItem("user_id");
+
 
             if (!token) {
               alert("로그인이 필요합니다.");
@@ -75,6 +77,7 @@ const Header = () => {
                 {
                   type: "LOGIN_INFO",
                   token: token,
+                  user_id: user_id
                 },
                 "https://plantmate.site"
               );
@@ -84,7 +87,7 @@ const Header = () => {
           정원 꾸미기
         </button>
 
-          <a href="http://15.168.150.125:3001/" className="nav-link">
+          <a href="/plantrecommend" className="nav-link">
             식물 추천
           </a>
         </nav>
