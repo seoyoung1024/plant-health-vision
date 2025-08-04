@@ -207,7 +207,6 @@ const PlantGrowthTracker = () => {
               />
             </div>
             <div className="mb-3 d-flex gap-2">
-              <button className="btn btn-outline-primary" onClick={startCamera}>카메라 열기</button>
               <button className="btn btn-outline-secondary" onClick={() => fileInputRef.current.click()}>사진 업로드</button>
               <button className="btn btn-outline-success" onClick={analyzeGrowth}>성장 분석</button>
               <input
@@ -218,16 +217,6 @@ const PlantGrowthTracker = () => {
                 onChange={handleFileUpload}
               />
             </div>
-
-            {showCamera && (
-              <div>
-                <video ref={videoRef} autoPlay playsInline style={{ width: '100%', maxWidth: '500px' }} />
-                <div className="mt-2">
-                  <button className="btn btn-success me-2" onClick={capturePhoto}>📸 촬영 및 업로드</button>
-                  <button className="btn btn-secondary" onClick={stopCamera}>닫기</button>
-                </div>
-              </div>
-            )}
             <canvas ref={canvasRef} style={{ display: 'none' }} />
           </div>
         </div>
@@ -280,24 +269,27 @@ const PlantGrowthTracker = () => {
         )}
 
         {/* 전체 리포트 카드 */}
-        <div className="report-container">
-          <div className="report-grid">
-            {reports.map((report, index) => (
-              <div key={index} className="report-card">
-                <div className="image-row">
-                  <img src={report.first_image_url} alt="처음 이미지" />
-                  <img src={report.last_image_url} alt="마지막 이미지" />
+       {/* 전체 리포트 카드 (리포트 있을 때만 보여주기 + 배경 포함) */}
+        {reports.length > 0 && (
+          <div className="report-container">
+            <div className="report-grid">
+              {reports.map((report, index) => (
+                <div key={index} className="report-card">
+                  <div className="image-row">
+                    <img src={report.first_image_url} alt="처음 이미지" />
+                    <img src={report.last_image_url} alt="마지막 이미지" />
+                  </div>
+                  <div className="report-info">
+                    <p><strong>식물 이름:</strong> {report.plant_name ?? '알 수 없음'}</p>
+                    <p><strong>날짜:</strong> {report.created_at ? new Date(report.created_at).toLocaleString() : 'N/A'}</p>
+                    <p><strong>성장률:</strong> {report.growth_rate_percent != null ? `${report.growth_rate_percent}%` : '측정 불가'}</p>
+                    <p><strong>요약:</strong> {report.summary ?? '없음'}</p>
+                  </div>
                 </div>
-                <div className="report-info">
-                  <p><strong>식물 이름:</strong> {report.plant_name ?? '알 수 없음'}</p>
-                  <p><strong>날짜:</strong> {report.created_at ? new Date(report.created_at).toLocaleString() : 'N/A'}</p>
-                  <p><strong>성장률:</strong> {report.growth_rate_percent != null ? `${report.growth_rate_percent}%` : '측정 불가'}</p>
-                  <p><strong>요약:</strong> {report.summary ?? '없음'}</p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
