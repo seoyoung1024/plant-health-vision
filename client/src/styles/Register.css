@@ -1,13 +1,11 @@
 /* Register.css */
 
 .register-container {
-    margin-top: 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
-  min-height: calc(100vh - 80px); /* 헤더 높이를 제외한 전체 높이 */
+  min-height: calc(93vh - 80px); /* 헤더 높이를 제외한 전체 높이 */
 }
 
 .register-form {

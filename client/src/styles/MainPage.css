@@ -83,7 +83,6 @@ img {
   display: flex;
   align-items: center;
   padding: 20px 5%;
-  position: fixed;
   width: 100%;
   top: 0;
   z-index: 1000;
