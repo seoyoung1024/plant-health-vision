@@ -42,9 +42,23 @@ const Header = () => {
           <a href="/" className="nav-link active">
             홈
           </a>
+                  
+          <a href="/plantsearch" className="nav-link">
+            식물 식별
+          </a>
+
+            <a href="/plantrecommend" className="nav-link">
+            식물 추천 
+          </a>
+
+            <a href="/plantrecommend/care" className="nav-link">
+            성장 가이드 
+          </a>
+
           <Link to="/plantgrowthtracker" className="nav-link">
-            식물 성장
+            성장 레포트
           </Link>
+          
         <button
           className="nav-link"
           onClick={(e) => {
@@ -87,9 +101,7 @@ const Header = () => {
           정원 꾸미기
         </button>
 
-          <a href="/plantrecommend" className="nav-link">
-            식물 추천
-          </a>
+
         </nav>
 
         <div className="auth-buttons">
