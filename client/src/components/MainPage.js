@@ -39,7 +39,7 @@ const MainPage = () => {
       <Header />
       {/* 메인 콘텐츠 */}
       <main className="hero-section">
-        <div className="hero-content">
+          <div className="hero-content">
           <h1>식물을 더 스마트하게 관리하세요</h1>
           <p className="subtitle">
             PlantMate와 함께라면 누구나 식물 관리의 달인이 될 수 있습니다. 지금 바로 시작해보세요!
@@ -49,7 +49,7 @@ const MainPage = () => {
       <section className="plant-gallery">
           <Carousel mixedData={mixedPlantImages} />
       </section>
-
+      
       {/* 앱 기능 소개 */}
       <section className="features">
         <h2>주요 기능</h2>

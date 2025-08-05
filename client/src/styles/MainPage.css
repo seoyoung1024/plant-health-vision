@@ -141,11 +141,11 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 50%;
+  min-height: 10%;
 }
 
 .hero-content {
-  margin-top: 12%;
+  margin-top: 6%;
   max-width: 550px;
   margin-left: 45%;
 }
