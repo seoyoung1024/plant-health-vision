@@ -24,7 +24,6 @@ body {
   overflow-x: hidden;
   background: #D9E4E4;
   word-break: keep-all;
-  
 }
 
 a {
@@ -52,7 +51,7 @@ img {
 
 .btn-primary {
   background-color: var(--primary-color);
-  color: white;      
+  color: white;
 }
 
 .btn-primary:hover {
@@ -174,25 +173,26 @@ img {
 
 @keyframes float {
   0%, 100% {
-      transform: translateY(0);
+    transform: translateY(0);
   }
   50% {
-      transform: translateY(-20px);
+    transform: translateY(-20px);
   }
+}
 
-
-
-}.plant-gallery {
+/* ---------------------------------------------------- */
+/* 캐러셀 관련 스타일 */
+/* ---------------------------------------------------- */
+.plant-gallery {
   margin-top: 30px;
   margin-left: 300px;
 }
-
 
 .carousel-track {
   overflow: visible;
   display: flex;
   will-change: transform;
-  transition: transform 0.6s ease-in-out; /* ✅ 슬라이딩 부드럽게 */
+  transition: transform 0.6s ease-in-out;
 }
 
 .carousel-slide {
@@ -204,7 +204,6 @@ img {
   z-index: 1;
   transition: transform 0.6s ease-in-out, opacity 0.4s ease-in-out;
 }
-
 
 .carousel-slide.active .plant-image {
   transform: translateX(-15%) translateY(-140px) scale(2.0);
@@ -277,64 +276,57 @@ img {
   margin: 0;
 }
 
-/* 기능 소개 섹션 */
-.features {
-  padding: 80px 5%;
-  background-color: var(--light-gray);
-  background: #D9E4E4;
-  margin-top: 50px;
+/* ---------------------------------------------------- */
+/* 기능 소개 섹션 (features) 스타일 수정 */
+/* ---------------------------------------------------- */
+.section.feature-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem 5%;
+  height: 100vh !important; /* fullpage.js가 height를 제어하도록 !important를 사용합니다. */
 }
 
-.features h2 {
-  text-align: center;
-  font-size: 2.2rem;
-  margin-bottom: 50px;
-  color: var(--text-primary);
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.feature-card {
-  padding: 40px 30px;
-  border-radius: 15px;
-  text-align: center;
-  box-shadow: var(--shadow);
-  transition: var(--transition);
-  background: #E9F0EF;
-}
-
-.feature-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-}
-
-.feature-icon {
-  width: 80px;
-  height: 80px;
-  background-color: var(--primary-light);
-  border-radius: 50%;
+.feature-content-wrapper {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin: 0 auto 25px;
-  color: var(--primary-color);
-  font-size: 2rem;
+  justify-content: space-between;
+  max-width: 1200px;
+  width: 100%;
+  gap: 50px;
 }
 
-.feature-card h3 {
-  font-size: 1.4rem;
-  margin-bottom: 15px;
+.align-left {
+  flex-direction: row;
 }
 
-.feature-card p {
-  color: var(--text-secondary);
-  line-height: 1.6;
+.align-right {
+  flex-direction: row-reverse;
+}
+
+.feature-text {
+  flex: 1;
+  text-align: left;
+}
+
+.feature-image-wrapper {
+  flex: 1;
+  text-align: center;
+}
+
+.feature-title {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.feature-description {
+  font-size: 1.3rem;
+}
+
+.feature-image {
+  max-width: 100%;
+  border-radius: 15px;
+  box-shadow: var(--shadow);
 }
 
 /* 푸터 스타일 */
@@ -412,4 +404,3 @@ img {
   color: #bdc3c7;
   font-size: 0.9rem;
 }
-
