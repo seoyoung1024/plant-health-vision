@@ -73,8 +73,9 @@ img {
 }
 
 .btn-lg {
-  padding: 12px 30px;
-  font-size: 1.1rem;
+  background-color:  #5e865f;
+  width: 385px;
+  font-size: 2.3rem;
 }
 
 /* 헤더 스타일 */
@@ -287,14 +288,14 @@ img {
   height: 100vh !important; /* fullpage.js가 height를 제어하도록 !important를 사용합니다. */
 }
 
-.feature-content-wrapper {
+/* .feature-content-wrapper {
   display: flex;
   align-items: center;
   justify-content: space-between;
   max-width: 1200px;
   width: 100%;
   gap: 50px;
-}
+} */
 
 .align-left {
   flex-direction: row;
@@ -325,9 +326,53 @@ img {
 
 .feature-image {
   max-width: 100%;
-  border-radius: 15px;
-  box-shadow: var(--shadow);
 }
+
+
+/* ✅✅✅ [추가된 부분] 성장 레포트 카드 UI 스타일 ✅✅✅ */
+.features-grid {
+  display: flex;
+  justify-content: center;
+  gap: 30px; /* 카드 사이의 간격 */
+  flex-wrap: wrap; /* 화면이 작아지면 카드가 아래로 내려가도록 설정 */
+  width: 100%;
+  max-width: 900px; /* 전체 그리드의 최대 너비 */
+}
+
+.feature-card {
+  background-color: var(--white); /* 테마 변수 사용 */
+  border-radius: 15px;
+  padding: 30px;
+  width: 250px; /* 각 카드의 너비 */
+  box-shadow: var(--shadow); /* 테마 변수 사용 */
+  text-align: center;
+  transition: var(--transition); /* 테마 변수 사용 */
+}
+
+.feature-card:hover {
+  transform: translateY(-10px); /* 마우스를 올리면 살짝 위로 이동 */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.feature-card .feature-icon {
+  font-size: 2.5rem; /* 아이콘 크기 */
+  color: var(--primary-color); /* 테마 변수 사용 */
+  margin-bottom: 20px;
+}
+
+.feature-card h3 {
+  font-size: 1.25rem;
+  color: var(--text-primary); /* 테마 변수 사용 */
+  margin-bottom: 10px;
+}
+
+.feature-card p {
+  font-size: 0.95rem;
+  color: var(--text-secondary); /* 테마 변수 사용 */
+  line-height: 1.6;
+}
+/* ✅✅✅ [추가된 부분] 여기까지 입니다. ✅✅✅ */
+
 
 /* 푸터 스타일 */
 .app-footer {
@@ -403,4 +448,53 @@ img {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   color: #bdc3c7;
   font-size: 0.9rem;
+}
+
+
+
+/* ✅ 이 코드를 CSS 파일 가장 아래에 추가하세요 */
+
+/* =================================
+   '식물 식별' 페이지 2단 레이아웃 스타일 
+================================= */
+
+/* 2단 레이아웃을 감싸는 컨테이너 */
+.feature-content-wrapper {
+  display: flex;         /* ⭐ 이 한 줄이 핵심입니다. 자식들을 수평 정렬합니다. */
+  align-items: center;   /* 수직 중앙 정렬 */
+  justify-content: center;
+  gap: 60px;             /* 텍스트와 이미지 사이 간격 */
+  width: 100%;
+  max-width: 1100px;
+}
+
+/* 왼쪽 텍스트 영역 */
+.feature-text {
+  flex: 1; /* 이미지와 1:1 비율로 공간 차지 */
+  text-align: left;
+}
+
+.feature-title {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.feature-description {
+  font-size: 1.3rem;
+  color: var(--text-secondary);
+}
+
+/* 오른쪽 이미지 영역 */
+.feature-image-wrapper {
+  flex: 1; /* 텍스트와 1:1 비율로 공간 차지 */
+  text-align: center;
+}
+
+/* 나머지 기능 페이지들을 위한 기본 스타일 */
+.feature-section-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
