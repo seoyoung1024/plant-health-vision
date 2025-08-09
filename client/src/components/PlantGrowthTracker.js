@@ -196,7 +196,7 @@ const PlantGrowthTracker = () => {
           </div>
           <div className="card-body">
             <div className="mb-3">
-              <label htmlFor="plantId" className="form-label">식물 ID</label>
+              <label htmlFor="plantId" className="form-label">식물 이름</label>
               <input
                 type="text"
                 className="form-control"
