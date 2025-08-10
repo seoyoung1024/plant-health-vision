@@ -198,7 +198,6 @@ a { text-decoration: none; color: inherit; }
   height: auto;      /* 기본 불투명, 애니메이션은 reveal이 담당 */
 }
 
-
 .identify-text { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
 
 /* =========================
@@ -216,7 +215,6 @@ a { text-decoration: none; color: inherit; }
   gap:64px;
   max-width:1200px;
   margin:0 auto;
-
   position:relative;
 }
 
@@ -250,7 +248,16 @@ a { text-decoration: none; color: inherit; }
 }
 
 /* 말풍선 */
-.guide-bubbles{ position:absolute; z-index:3; left:78%; top:18%; }
+.guide-bubbles{ 
+  position:absolute; 
+  z-index:3; 
+  left:78%; 
+  top:18%; 
+  display: flex;           /* Flexbox 사용 */
+  flex-direction: column;  /* 세로로 정렬 */
+  gap: 14px;               /* 말풍선 간 간격 */
+}
+
 .bubble{
   background:#fff;
   border-radius:36px;
@@ -261,21 +268,51 @@ a { text-decoration: none; color: inherit; }
   line-height:1.45;
   display:inline-block;
   position:relative;
+  white-space: nowrap;
 }
-.bubble::after{                /* 꼬리 */
-  content:"";
-  position:absolute;
-  left:-10px;
-  top:22px;
-  width:0; height:0;
-  border-top:10px solid transparent;
-  border-bottom:10px solid transparent;
-  border-right:12px solid #fff;
-  filter: drop-shadow(-2px 2px 2px rgba(0,0,0,.04));
+
+.bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -4px; /* 꼬리가 밑으로 나옴 */
+  left: 10%; /* 기본 위치 */
+  transform: translateX(-90%);
+  border-width: 8px 6px 0 6px; /* 위쪽만 뾰족 */
+  border-style: solid;
+  border-color: #fff transparent transparent transparent;
 }
+.bubble.bubble-sm.reveal-down.delay-1::after{
+  bottom: -5px;
+  left: 33%;
+  transform: translateX(-170%);
+}
+.bubble.bubble-sm.reveal-down.delay-3::after{
+  bottom: -4px;
+  left: 25%;
+  transform: translateX(-170%);
+}
+
+.guide-bubbles .bubble:nth-child(1) {
+  padding:16px 18px;
+  width:100px;
+  border-radius:36px;
+}
+.guide-bubbles .bubble:nth-child(2) {
+  width: 220px;
+  margin-top: 14px;
+  margin-left: 14px;
+}
+.guide-bubbles .bubble:nth-child(3) {
+  width: 120px;
+  border-radius:36px;
+  padding:16px 18px;
+  margin-top: 14px;
+  margin-left: 34px;
+}
+
 .bubble-lg{ width:210px; }
+
 .bubble-sm{
-  margin-top:14px;
   font-weight:600;
   padding:10px 14px;
   border-radius:14px;
@@ -284,7 +321,8 @@ a { text-decoration: none; color: inherit; }
 }
 
 /* 오른쪽 텍스트/버튼 */
-.guide-text{ text-align:left; }
+.guide-text{ text-align:left; margin-top:100px}
+
 .guide-title{
   font-size:55px;
   line-height:1.1;
@@ -319,10 +357,18 @@ a { text-decoration: none; color: inherit; }
   box-shadow: 0 14px 30px rgba(46, 93, 63, .28);
 }
 
+.button-identify-report:hover{
+    transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(46, 93, 63, .28);
+}
+
+
 /* 애니메이션(이미 쓰는 reveal 클래스와 어울리게 약간 더 느리게) */
 .guide-plant-wrap.reveal-up,
 .guide-visual .bubble{ transition-duration: 900ms; }
 .guide-text .reveal-down{ transition-duration: 950ms; }
+
+
 
 /* =========================
    반응형 튜닝
@@ -358,6 +404,137 @@ a { text-decoration: none; color: inherit; }
   .guide-section .button-identify{ min-width:260px; font-size:18px; padding:16px 22px; }
 }
 
+/* =========================
+   성장 레포트: 안전한 중앙 정렬 ( :has() 제거 )
+========================= */
+
+/* 모든 feature-section-item을 가운데 정렬 */
+.section.feature-section-item {
+  flex-direction: column;
+  align-items: center;     /* 가로 중앙 */
+  justify-content: center; /* 세로 중앙 */
+  text-align: center;
+  min-height: 100vh;       /* 화면 정중앙 배치 */
+}
+
+/* 카드 그리드(성장 레포트) */
+.growth-report-section{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fp-table {
+  display: block !important;
+}
+
+.growth-report-grid{
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 40px;
+  flex-wrap: wrap;
+  margin: 20px auto 0;
+  max-width: 1000px;
+}
+.growth-report-card{
+  background: var(--white);
+  border-radius: 15px;
+  padding: 30px;
+  width: 250px;
+  box-shadow: var(--shadow);
+  text-align: center;
+  transition: var(--transition);
+}
+.growth-report-card:hover{
+  transform: translateY(-10px);
+  box-shadow: 0 8px 25px rgba(0,0,0,.15);
+}
+.growth-report-icon{ font-size:2.5rem; color: var(--primary-color); margin-bottom:20px; }
+.growth-report-title{ font-size:1.25rem; color: var(--text-primary); margin-bottom:10px;}
+.growth-report-desc{ font-size:.95rem; color: var(--text-secondary); line-height:1.6; }
+
+.growth-report-section{
+  background-color:#E9F0EF;
+  border-radius: 20px;
+  width: 900px;
+  height: 280px;
+}
+
+/* 식물 식별/성장 가이드 섹션은 원래 2단/그리드 레이아웃 유지하도록 덮어쓰기 */
+.section.feature-section-item .identify-section,
+.section.feature-section-item .guide-section {
+  align-self: stretch;     /* 부모 중앙정렬 영향 최소화 */
+  min-height: auto;
+  justify-content: flex-start;
+}
+
+/* 식물 식별 내부 텍스트는 좌측 정렬 유지 */
+.section.feature-section-item .identify-text {
+  text-align: left;
+}
+
+/* 버튼 줄 가운데 배치 보정(성장 레포트 아래 버튼) */
+.section.feature-section-item > div:last-child {
+  align-self: center;
+}
+/* 성장 레포트 섹션 전용 중앙 정렬 */
+.section.feature-section-item.growth-report-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;  /* 세로 중앙 */
+  align-items: center;      /* 가로 중앙 */
+  min-height: 100vh;        /* 화면 높이 기준 */
+}
+
+/* growth-report-section 자체도 가로 중앙 정렬 */
+.growth-report-section {
+  margin: 0 auto;           /* 좌우 중앙 */
+}
+.growth-report-heading {
+  font-size: 48px;
+  padding-top: 80px;
+}
+.growth-report-p {
+  margin-left: 450px;
+}
+
+.button-identify-report{
+  background-color: #5e865f;
+  display: inline-block;
+  padding: 18px 90px;
+  border-radius: 30px;
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  border: 2px solid transparent;
+  color: #ffffff;
+}
+
+/* 반응형에서 카드 간격 살짝 조정 (선택) */
+@media (max-width: 640px) {
+  .growth-report-grid { gap: 24px; }
+}
+
+.guide-section {
+  overflow-x: clip; /* 또는 overflow-x: hidden; */
+}
+
+/* fullpage 섹션에서 세로 오버플로우를 막아 스크롤바 깜빡임 제거 */
+.fp-section,
+.fp-overflow,
+.section.feature-section-item {
+  overflow-y: clip !important;  /* 안 되면 hidden으로 교체 */
+}
+
+/* 이미 하신 것 + 보강: 가이드 섹션 가로는 잘라서 문서폭 안 늘어나게 */
+.guide-section { overflow-x: clip; }
+
+/* 레이아웃 흔들림 방지(지원 브라우저) */
+:root { scrollbar-gutter: stable both-edges; }
 
 /* =========================
    Reveal Animations
@@ -412,3 +589,4 @@ a { text-decoration: none; color: inherit; }
   .identify-card { width: 100%; }
   .identify-steps { width: 100%; justify-content: space-between; }
 }
+

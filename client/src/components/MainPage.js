@@ -170,11 +170,14 @@ const MainPage = () => {
                       </div>
 
                       <div className="guide-bubbles">
-                        <div className="bubble bubble-lg reveal-down delay-1">
-                          몬스테라의 최대 길이는 20M
-                        </div>
-                        <div className="bubble bubble-sm reveal-down delay-2">
+                        <div className="bubble bubble-sm reveal-down delay-1">
                           몬스테라
+                        </div>
+                        <div className="bubble bubble-lg reveal-down delay-2">
+                          밝은 간접광이 필요합니다
+                        </div>
+                        <div className="bubble bubble-sm reveal-down delay-3">
+                          지지대 설치
                         </div>
                       </div>
                     </div>
@@ -198,40 +201,48 @@ const MainPage = () => {
                 </section>
               ) : (
                 /* --- 기본 섹션 (중복 없이 한 번만) --- */
-                <>
-                  <h1>{feature.title}</h1>
-                  <p style={{ fontSize: "1.3rem", maxWidth: 600 }}>
-                    {feature.description}
-                  </p>
+              <>
+                        <h1
+                className={
+                  feature.title === "성장 레포트"
+                    ? "growth-report-heading reveal-down delay-1"
+                    : ""
+                }
+              >
+                {feature.title}
+              </h1>
+                        <p
+                className={feature.title === "성장 레포트" ? "growth-report-p reveal-down delay-2" : ""}
+                style={{ fontSize: "1.3rem", maxWidth: 600 }}
+              >
+                {feature.description}
+              </p>
+                          {feature.title === "성장 레포트" && (
+              <div className="growth-report-section" style={{ marginTop: 40 }}>
+                <div className="growth-report-grid">
+                  <div className="growth-report-card reveal-up delay-1">
+                    <div className="growth-report-icon"><i className="fas fa-camera"></i></div>
+                    <h3 className="growth-report-title">Before & After 비교</h3>
+                    <p className="growth-report-desc">사진 비교로 변화를 한눈에 확인하세요.</p>
+                  </div>
 
-                  {feature.title === "성장 레포트" && (
-                    <div className="features-grid" style={{ marginTop: 40 }}>
-                      <div className="feature-card">
-                        <div className="feature-icon">
-                          <i className="fas fa-camera"></i>
-                        </div>
-                        <h3>Before & After 비교</h3>
-                        <p>사진 비교로 변화를 한눈에 확인하세요.</p>
-                      </div>
-                      <div className="feature-card">
-                        <div className="feature-icon">
-                          <i className="fas fa-chart-line"></i>
-                        </div>
-                        <h3>성장 데이터 분석</h3>
-                        <p>키/잎 수 등 데이터를 그래프로 시각화.</p>
-                      </div>
-                      <div className="feature-card">
-                        <div className="feature-icon">
-                          <i className="fas fa-book-open"></i>
-                        </div>
-                        <h3>주간/월간 리포트</h3>
-                        <p>주기적인 요약 리포트로 관리 상태 점검.</p>
-                      </div>
-                    </div>
-                  )}
+                  <div className="growth-report-card reveal-up delay-2">
+                    <div className="growth-report-icon"><i className="fas fa-chart-line"></i></div>
+                    <h3 className="growth-report-title">성장 데이터 분석</h3>
+                    <p className="growth-report-desc">키/잎 수 등 데이터를 그래프로 시각화</p>
+                  </div>
+
+                  <div className="growth-report-card reveal-up delay-3">
+                    <div className="growth-report-icon"><i className="fas fa-book-open"></i></div>
+                    <h3 className="growth-report-title">주간/월간 리포트</h3>
+                    <p className="growth-report-desc">주기적인 요약 리포트로 관리 상태 점검.</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
                   <div style={{ marginTop: 40 }}>
-                    <a href={feature.buttonUrl} className="button-identify">
+                    <a href={feature.buttonUrl} className="button-identify-report">
                       {feature.buttonText}
                     </a>
                   </div>
