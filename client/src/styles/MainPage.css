@@ -25,7 +25,6 @@ body {
 }
 
 a { text-decoration: none; color: inherit; }
-img { max-width: 100%; height: auto; }
 
 /* =========================
    버튼
@@ -201,6 +200,164 @@ img { max-width: 100%; height: auto; }
 
 
 .identify-text { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+
+/* =========================
+   성장 가이드 섹션 디테일 업
+========================= */
+
+/* 레이아웃 */
+.guide-section{
+  background:#D9E4E4;
+}
+.guide-grid{
+  display:grid;
+  grid-template-columns: 1.12fr 1fr;   /* 왼쪽 비율을 조금 더 크게 */
+  align-items:center;
+  gap:64px;
+  max-width:1200px;
+  margin:0 auto;
+
+  position:relative;
+}
+
+/* 왼쪽 비주얼 */
+.guide-visual{
+  position:relative;
+  min-height:520px;            /* 버블/원 배경 공간 확보 */
+}
+
+/* 원형 배경(살짝 그러데이션) */
+.guide-circle{
+  position:absolute;
+  left:-110px;                  
+  top:10px;
+  width:630px;
+  height:630px;
+  border-radius:50%;
+  background: #567762;
+  box-shadow: 0 18px 40px rgba(0,0,0,.12) inset, 0 6px 18px rgba(0,0,0,.06);
+}
+
+/* 식물 이미지 */
+.guide-plant-wrap{ position:relative; z-index:2; }
+.guide-plant{
+  width:630px;
+  margin-top: 50px;
+  transform: translateX(-100px);
+  height:auto;
+  display:block;
+
+}
+
+/* 말풍선 */
+.guide-bubbles{ position:absolute; z-index:3; left:78%; top:18%; }
+.bubble{
+  background:#fff;
+  border-radius:36px;
+  padding:16px 18px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.10);
+  color:#29463f;
+  font-weight:700;
+  line-height:1.45;
+  display:inline-block;
+  position:relative;
+}
+.bubble::after{                /* 꼬리 */
+  content:"";
+  position:absolute;
+  left:-10px;
+  top:22px;
+  width:0; height:0;
+  border-top:10px solid transparent;
+  border-bottom:10px solid transparent;
+  border-right:12px solid #fff;
+  filter: drop-shadow(-2px 2px 2px rgba(0,0,0,.04));
+}
+.bubble-lg{ width:210px; }
+.bubble-sm{
+  margin-top:14px;
+  font-weight:600;
+  padding:10px 14px;
+  border-radius:14px;
+  display:inline-block;
+  width:auto;
+}
+
+/* 오른쪽 텍스트/버튼 */
+.guide-text{ text-align:left; }
+.guide-title{
+  font-size:55px;
+  line-height:1.1;
+  font-weight:600;
+  letter-spacing:-0.5px;
+  margin:0 0 14px;
+  color: #122427;
+}
+.guide-desc{
+  font-size:18px;
+  color:#5c6c6f;
+  margin:0 0 28px;
+  max-width:540px;
+}
+
+/* 큰 버튼 느낌 */
+.guide-section .button-identify{
+  margin-top: 52px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width: 155px;
+  height: 82px;
+  border-radius:34px;
+  font-size:22px;
+  background:#5e865f;
+  box-shadow: 0 10px 24px rgba(46, 93, 63, .22);
+  transition: transform .25s ease, box-shadow .25s ease, background-color .25s ease;
+}
+.guide-section .button-identify:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(46, 93, 63, .28);
+}
+
+/* 애니메이션(이미 쓰는 reveal 클래스와 어울리게 약간 더 느리게) */
+.guide-plant-wrap.reveal-up,
+.guide-visual .bubble{ transition-duration: 900ms; }
+.guide-text .reveal-down{ transition-duration: 950ms; }
+
+/* =========================
+   반응형 튜닝
+========================= */
+@media (max-width: 1200px){
+  .guide-circle{ width:500px; height:500px; left:-20px; }
+  .guide-plant{ width:360px; margin:70px 0 0 80px; }
+}
+@media (max-width: 980px){
+  .guide-grid{ grid-template-columns:1fr; gap:40px; }
+  .guide-visual{ min-height:460px; }
+  .guide-circle{
+    left:50%;
+    transform:translateX(-50%);
+    top:0;
+    width:520px; height:520px;
+  }
+  .guide-plant{   max-width: none;
+  width: 800px;              /* 기준 크기 */
+  transform-origin: left bottom;
+  transform: translateX(-80px) scale(1.5);  /* 비율로 확대 */}
+  .guide-bubbles{ left:50%; transform:translateX(140px); top:16%; }
+  .guide-title{ font-size:56px; }
+  .guide-section .button-identify{ min-width:320px; }
+}
+@media (max-width: 640px){
+  .guide-circle{ width:420px; height:420px; }
+  .guide-plant{ width:300px; margin:80px auto 0; }
+  .guide-bubbles{ transform:translateX(110px); }
+  .bubble-lg{ width:180px; }
+  .guide-title{ font-size:40px; }
+  .guide-desc{ font-size:16px; }
+  .guide-section .button-identify{ min-width:260px; font-size:18px; padding:16px 22px; }
+}
+
 
 /* =========================
    Reveal Animations

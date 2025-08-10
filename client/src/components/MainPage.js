@@ -4,6 +4,7 @@ import Carousel from "./Carousel";
 import Header from "./Header";
 import ReactFullpage from "@fullpage/react-fullpage";
 import plantRecommendationImage from "../chatgptplant.png";
+import monsteraImg from "../monstera.png"; // 네 파일 경로 유지
 
 const MainPage = () => {
   const plantNames = ["감나무", "개망초", "튤립", "네잎클로바", "안개꽃", "개나리"];
@@ -29,7 +30,7 @@ const MainPage = () => {
       title: "성장 가이드",
       description: "물 주기, 햇빛, 온도 등 최적의 환경 가이드를 제공해요.",
       background: "#D9E4E4",
-      buttonText: "가이드 시작하기",
+      buttonText: "추천받기",
       buttonUrl: "/guide",
     },
     {
@@ -78,7 +79,7 @@ const MainPage = () => {
       normalScrollElements=".hero-and-carousel-section"
       render={() => (
         <ReactFullpage.Wrapper>
-          {/* 1. 히어로 + 캐러셀 */}
+          {/* 1) 히어로 + 캐러셀 */}
           <div className="section hero-and-carousel-section">
             <Header />
             <main className="hero-section">
@@ -95,10 +96,11 @@ const MainPage = () => {
             </section>
           </div>
 
-          {/* 2. 기능 섹션들 */}
+          {/* 2) 기능 섹션들 */}
           {features.map((feature, idx) => (
             <div key={idx} className="section feature-section-item">
               {feature.title === "식물 식별" ? (
+                /* --- 식물 식별 전용 섹션 --- */
                 <section className="feature-section-item identify-section">
                   <div className="identify-grid">
                     {/* LEFT: 이미지 (아래→위) */}
@@ -114,9 +116,7 @@ const MainPage = () => {
 
                     {/* RIGHT: 텍스트 (위→아래) */}
                     <div className="identify-text">
-                      <h1 className="feature-title reveal-down">
-                        식물 식별
-                      </h1>
+                      <h1 className="feature-title reveal-down">식물 식별</h1>
                       <p className="feature-description reveal-down delay-1">
                         사진 한 장으로 정확한 식물 이름과 정보를 확인하세요.
                       </p>
@@ -158,7 +158,46 @@ const MainPage = () => {
                     </div>
                   </div>
                 </section>
+              ) : feature.title === "성장 가이드" ? (
+                /* --- 성장 가이드 전용 섹션 --- */
+                <section className="guide-section">
+                  <div className="guide-grid">
+                    {/* LEFT : 몬스테라 + 동그라미 배경 + 말풍선 */}
+                    <div className="guide-visual">
+                      <div className="guide-plant-wrap reveal-up">
+                        <div className="guide-circle" aria-hidden="true" />
+                        <img src={monsteraImg} alt="몬스테라" className="guide-plant" />
+                      </div>
+
+                      <div className="guide-bubbles">
+                        <div className="bubble bubble-lg reveal-down delay-1">
+                          몬스테라의 최대 길이는 20M
+                        </div>
+                        <div className="bubble bubble-sm reveal-down delay-2">
+                          몬스테라
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* RIGHT : 타이틀/설명/버튼 */}
+                    <div className="guide-text">
+                      <h1 className="guide-title reveal-down">
+                        식물 성장 가이드
+                      </h1>
+                      <p className="guide-desc reveal-down delay-1">
+                        물 주기, 햇빛, 온도 등 최적의 환경 가이드를 제공해줍니다.
+                      </p>
+                      <a
+                        href={feature.buttonUrl}
+                        className="button-identify reveal-down delay-2"
+                      >
+                        추천받기
+                      </a>
+                    </div>
+                  </div>
+                </section>
               ) : (
+                /* --- 기본 섹션 (중복 없이 한 번만) --- */
                 <>
                   <h1>{feature.title}</h1>
                   <p style={{ fontSize: "1.3rem", maxWidth: 600 }}>
@@ -201,7 +240,7 @@ const MainPage = () => {
             </div>
           ))}
 
-          {/* 3. 푸터 */}
+          {/* 3) 푸터 */}
           <div className="section">
             <footer className="app-footer">
               <div className="footer-content">
