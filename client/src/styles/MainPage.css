@@ -10,7 +10,7 @@
   --white: #ffffff;
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   --transition: all 0.3s ease;
-  
+  scrollbar-gutter: stable both-edges;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,7 +24,9 @@ body {
   word-break: keep-all;
 }
 
-a { text-decoration: none; color: inherit; }
+a { 
+  text-decoration: none; color: inherit; 
+}
 
 /* =========================
    버튼
@@ -40,14 +42,30 @@ a { text-decoration: none; color: inherit; }
   transition: var(--transition);
   border: 2px solid transparent;
 }
-
-.btn-primary { background-color: var(--primary-color); color: #fff; }
-.btn-primary:hover { background-color: var(--primary-color); box-shadow: 0 4px 12px rgba(76,175,80,.3); }
-
-.btn-outline { background: transparent; border: 2px solid var(--primary-color); color: var(--primary-color); }
-.btn-outline:hover { background: var(--primary-color); color: #fff; transform: translateY(-2px); }
-
-.btn-lg { background: #5e865f; width: 280px; font-size: 2rem; transform: translateX(150px) translateY(-100px); }
+.btn-primary { 
+  background-color: var(--primary-color); 
+  color: #fff; 
+}
+.btn-primary:hover { 
+  background-color: var(--primary-color); 
+  box-shadow: 0 4px 12px rgba(76,175,80,.3); 
+}
+.btn-outline { 
+  background: transparent; 
+  border: 2px solid var(--primary-color); 
+  color: var(--primary-color); 
+}
+.btn-outline:hover { 
+  background: var(--primary-color); 
+  color: #fff; 
+  transform: translateY(-2px); 
+}
+.btn-lg { 
+  background: #5e865f; 
+  width: 280px; 
+  font-size: 2rem; 
+  transform: translateX(150px) translateY(-100px); 
+}
 
 .button-identify{
   background-color: #5e865f;
@@ -62,6 +80,7 @@ a { text-decoration: none; color: inherit; }
   border: 2px solid transparent;
   color: #ffffff;
 }
+
 .button-identify:hover{
   background-color: var(--primary-color);
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
@@ -71,12 +90,38 @@ a { text-decoration: none; color: inherit; }
 /* =========================
    헤더 & 히어로
 ========================= */
-.app-header { display: flex; align-items: center; padding: 20px 5%; width: 100%; z-index: 1000; }
-.logo { display: flex; align-items: center; font-size: 1.5rem; font-weight: 700; color: var(--primary-color); }
-.logo i { margin-right: 10px; font-size: 1.8rem; }
-.main-nav { display: flex; gap: 30px; margin-left: auto; }
+.app-header { 
+  display: flex; 
+  align-items: center; 
+  padding: 20px 5%; 
+  width: 100%; 
+  z-index: 1000; 
+}
+.logo { 
+  display: flex; 
+  align-items: center; 
+  font-size: 1.5rem; 
+  font-weight: 700; 
+  color: var(--primary-color); 
+}
+.logo i { 
+  margin-right: 10px; 
+  font-size: 1.8rem; 
+}
+.main-nav { 
+  display: flex; 
+  gap: 30px; 
+  margin-left: auto; 
+}
 
-.nav-link { font-weight: 500; color: var(--text-primary); padding: 5px 0; position: relative; transition: var(--transition); background: #D9E4E4; }
+.nav-link { 
+  font-weight: 500; 
+  color: var(--text-primary); 
+  padding: 5px 0; 
+  position: relative; 
+  transition: var(--transition); 
+  background: #D9E4E4; 
+}
 .nav-link:hover, .nav-link.active { color: var(--primary-color); }
 .nav-link.active::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 100%; height: 2px; background: var(--primary-color); }
 
@@ -125,13 +170,364 @@ a { text-decoration: none; color: inherit; }
 .feature-description { font-size: 1.3rem; }
 .feature-image { max-width: 200%; opacity: 0.9; }
 
-/* 성장 레포트 카드 */
-.features-grid { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; width: 100%; max-width: 900px; }
-.feature-card { background: var(--white); border-radius: 15px; padding: 30px; width: 250px; box-shadow: var(--shadow); text-align: center; transition: var(--transition); }
-.feature-card:hover { transform: translateY(-10px); box-shadow: 0 8px 25px rgba(0,0,0,.15); }
-.feature-card .feature-icon { font-size: 2.5rem; color: var(--primary-color); margin-bottom: 20px; }
-.feature-card h3 { font-size: 1.25rem; color: var(--text-primary); margin-bottom: 10px; }
-.feature-card p { font-size: .95rem; color: var(--text-secondary); line-height: 1.6; }
+/* =========================
+   식물 식별 (2단)
+========================= */
+.identify-section { width: 100%; background: #D9E4E4; overflow: hidden; }
+.identify-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  align-items: center;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.identify-text .feature-title { font-size: 48px; font-weight: 700; margin: 0 0 12px; }
+.identify-text .feature-description { font-size: 20px; color: #516064; margin: 0 0 28px; }
+.identify-steps {
+  display: inline-flex; align-items: center; gap: 14px;
+  background: #fff; border-radius: 14px; padding: 12px 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.06); margin-bottom: 20px;
+}
+.identify-steps .step { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: #2f4f3e; }
+.identify-steps .step i { width: 18px; text-align: center; }
+.identify-steps .step-sep { color: #9bb0a7; }
+.identify-card {
+  display: flex; align-items: center; gap: 12px;
+  background: #fff; border-radius: 16px; padding: 16px 18px; width: 360px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.08); margin: 8px 0 18px;
+}
+.identify-card .card-icon {
+  width: 60px; height: 60px; border-radius: 50%; background: #eaf3ed;
+  display: inline-flex; align-items: center; justify-content: center; color: #2f6e48;
+}
+.identify-card .pcard-body { display: grid; gap: 2px; }
+.identify-card .card-title { font-weight: 800; font-size: 18px; }
+.identify-card .card-desc { font-size: 14px; color: #607477; }
+.identify-visual { display: flex; align-items: center; justify-content: center; }
+.identify-visual .feature-image { width: 97%; max-width: 97%; height: auto; }
+.identify-text { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+
+/* =========================
+   성장 가이드
+========================= */
+.guide-section{ background:#D9E4E4; overflow-x: clip; }
+.guide-grid{
+  display:grid;
+  grid-template-columns: 1.12fr 1fr;
+  align-items:center;
+  gap:64px;
+  max-width:1200px;
+  margin:0 auto;
+  position:relative;
+}
+.guide-visual{ position:relative; min-height:520px; }
+.guide-circle{
+  position:absolute; left:-110px; top:10px; width:630px; height:630px; border-radius:50%;
+  background:#567762; box-shadow: 0 18px 40px rgba(0,0,0,.12) inset, 0 6px 18px rgba(0,0,0,.06);
+}
+.guide-plant-wrap{ position:relative; z-index:2; }
+.guide-plant{ width:630px; margin-top:50px; transform: translateX(-100px); height:auto; display:block; }
+.guide-bubbles{ position:absolute; z-index:3; left:78%; top:18%; display:flex; flex-direction:column; gap:14px; }
+.bubble{
+  background:#fff; border-radius:36px; padding:16px 18px; box-shadow: 0 10px 24px rgba(0,0,0,.10);
+  color:#29463f; font-weight:700; line-height:1.45; display:inline-block; position:relative; white-space: nowrap;
+}
+.bubble::after{
+  content:""; position:absolute; bottom:-4px; left:10%; transform:translateX(-90%);
+  border-width:8px 6px 0 6px; border-style:solid; border-color:#fff transparent transparent transparent;
+}
+.bubble.bubble-sm.reveal-down.delay-1::after{ bottom:-5px; left:33%; transform:translateX(-170%); }
+.bubble.bubble-sm.reveal-down.delay-3::after{ bottom:-4px; left:25%; transform:translateX(-170%); }
+.guide-bubbles .bubble:nth-child(1){ width:100px; border-radius:36px;}
+.guide-bubbles .bubble:nth-child(2){ width:220px; margin-top:14px; margin-left:14px; }
+.guide-bubbles .bubble:nth-child(3){ width:120px; margin-top:14px; margin-left:34px; border-radius:36px;}
+.bubble-lg{ width:210px; }
+.bubble-sm{ font-weight:600; padding:10px 14px; border-radius:14px; }
+.guide-text{ text-align:left; margin-top:100px }
+.guide-title{ font-size:55px; line-height:1.1; font-weight:600; letter-spacing:-0.5px; margin:0 0 14px; color:#122427; }
+.guide-desc{ font-size:18px; color:#5c6c6f; margin:0 0 28px; max-width:540px; }
+.guide-section .button-identify{
+  margin-top:52px; display:inline-flex; align-items:center; justify-content:center; height:82px;
+  border-radius:34px; font-size:22px; background:#5e865f; box-shadow: 0 10px 24px rgba(46,93,63,.22);
+  transition: transform .25s ease, box-shadow .25s ease, background-color .25s ease;
+}
+.guide-section .button-identify:hover{ transform: translateY(-2px); box-shadow: 0 14px 30px rgba(46,93,63,.28); }
+.button-identify-report:hover{ transform: translateY(-2px); box-shadow: 0 14px 30px rgba(46,93,63,.28); }
+.guide-plant-wrap.reveal-up, .guide-visual .bubble{ transition-duration: 900ms; }
+.guide-text .reveal-down{ transition-duration: 950ms; }
+
+/* 반응형(가이드) */
+@media (max-width: 1200px){
+  .guide-circle{ width:500px; height:500px; left:-20px; }
+  .guide-plant{ width:360px; margin:70px 0 0 80px; }
+}
+@media (max-width: 980px){
+  .guide-grid{ grid-template-columns:1fr; gap:40px; }
+  .guide-visual{ min-height:460px; }
+  .guide-circle{ left:50%; transform:translateX(-50%); top:0; width:520px; height:520px; }
+  .guide-plant{ max-width:none; width:800px; transform-origin:left bottom; transform: translateX(-80px) scale(1.5); }
+  .guide-bubbles{ left:50%; transform:translateX(140px); top:16%; }
+  .guide-title{ font-size:56px; }
+  .guide-section .button-identify{ min-width:320px; }
+}
+@media (max-width: 640px){
+  .guide-circle{ width:420px; height:420px; }
+  .guide-plant{ width:300px; margin:80px auto 0; }
+  .guide-bubbles{ transform:translateX(110px); }
+  .bubble-lg{ width:180px; }
+  .guide-title{ font-size:40px; }
+  .guide-desc{ font-size:16px; }
+  .guide-section .button-identify{ min-width:260px; font-size:18px; padding:16px 22px; }
+}
+
+/* =========================
+   성장 레포트
+========================= */
+.section.feature-section-item {
+  flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 100vh;
+}
+.growth-report-section{ width: 100%; display:flex; flex-direction:column; align-items:center; margin:0 auto; background:#E9F0EF; border-radius:20px; width:900px; height:280px; }
+.fp-table { display: block !important; }
+.growth-report-grid{ display:flex; justify-content:center; align-items:stretch; gap:40px; flex-wrap:wrap; margin:20px auto 0; max-width:1000px; }
+.growth-report-card{ background:#fff; border-radius:15px; padding:30px; width:250px; box-shadow: var(--shadow); text-align:center; transition: var(--transition); }
+.growth-report-card:hover{ transform: translateY(-10px); box-shadow: 0 8px 25px rgba(0,0,0,.15); }
+.growth-report-icon{ font-size:2.5rem; color: var(--primary-color); margin-bottom:20px; }
+.growth-report-title{ font-size:1.25rem; color: var(--text-primary); margin-bottom:10px; }
+.growth-report-desc{ font-size:.95rem; color: var(--text-secondary); line-height:1.6; }
+.section.feature-section-item .identify-section,
+.section.feature-section-item .guide-section { align-self: stretch; min-height: auto; justify-content: flex-start; }
+.section.feature-section-item .identify-text { text-align: left; }
+.section.feature-section-item > div:last-child { align-self: center; }
+.section.feature-section-item.growth-report-wrapper { display:flex; flex-direction:column; justify-content:center; align-items:center; min-height:100vh; }
+.growth-report-heading { font-size:48px; padding-top:80px; }
+.growth-report-p { 
+  margin-left: 450px; 
+  font-size: 18px;
+  color: #5c6c6f;
+}
+
+.button-identify-report{
+  background-color:#5e865f; display:inline-block; padding:18px 90px; border-radius:30px; font-size:20px; font-weight:600;
+  text-align:center; cursor:pointer; transition: var(--transition); border:2px solid transparent; color:#ffffff;
+}
+@media (max-width: 640px){ .growth-report-grid { gap:24px; } }
+
+/* =========================
+   식물 추천(카드형)
+========================= */
+
+.section.feature-section-item .recommend-section{
+  width: 100%;
+  display: flex;
+  justify-content: center;   /* 섹션 자체를 가운데 */
+  height: 100%;             /* 섹션 높이 꽉 채움 */  /* 가로 중앙 */
+  align-items: center;      /* 세로 중앙 */
+  padding-top: 180px;
+}
+
+.recommend-section { 
+  background:#D9E4E4; 
+}
+.recommend-grid{
+  width: 100%;
+  max-width: 1100px;         /* 필요하면 1200px로 */
+  margin: 0 auto;    
+  display:grid; 
+  grid-template-columns: 1.05fr 1fr; 
+  align-items:center; 
+  max-width:1200px; 
+  margin:0 auto; 
+  padding:0 24px; 
+  position:relative;
+}
+.recommend-text{
+  text-align: left;
+  
+}
+.recommend-text span{
+  font-weight: 700;
+  color: #2f4f3e;
+}
+
+.recommend-text h1{ 
+  font-size:48px; 
+  font-weight:700; 
+  color:#122427; 
+  margin:0 0 14px; 
+}
+.recommend-text p{ 
+  font-size:18px; 
+  color:#5c6c6f; 
+  margin:0 0 22px; 
+}
+.recommend-steps{
+  display:inline-flex; 
+  align-items:center; 
+  gap:12px; 
+  background:#fff; 
+  padding:10px 14px; 
+  border-radius:14px;
+  box-shadow:0 6px 16px rgba(0,0,0,.06); 
+  margin-bottom:26px;
+}
+.recommend-steps .sep{ color:#9bb0a7; }
+
+.recommend-cards-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 30px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 20px;
+  background-color: #E9F0EF;
+}
+
+.recommend-cards{ 
+  display:grid; 
+  grid-template-columns: repeat(3, 1fr); 
+  gap:18px; 
+}
+.rec-card{
+  background:#fff; border-radius:16px; padding:18px; box-shadow:0 10px 22px rgba(0,0,0,.08);
+  transition: transform .25s ease, box-shadow .25s ease; text-align:left;
+  width: 200px;
+  height: 300px
+}
+.rec-card:hover{ transform: translateY(-6px); box-shadow: 0 16px 28px rgba(0,0,0,.12); }
+.rec-thumb{
+  width:100%; height:180px; border-radius:12px;
+  background: radial-gradient(120px 120px at 60% 40%, #dfe9e6 0%, #cfe0da 35%, #bcd4cd 70%, #a7c3bb 100%);
+  background-size: cover; background-position: center; margin-bottom:14px;
+}
+
+.rec-thumb-img{
+  width: 100%;
+  height: 190px;     /* 필요하면 조절 */
+  object-fit: cover; /* 꽉 채우기 */
+  border-radius: 12px;
+  display: block;
+  margin-bottom: 14px;
+}
+
+.rec-name{ font-weight:800; color:#122427; margin-bottom:6px; }
+.rec-desc{ font-size:14px; color:#607477; }
+
+.button-identify.reveal-down.delay-3{
+  padding: 25px 100px;
+}
+@media (max-width: 980px){
+  .recommend-grid{ grid-template-columns:1fr; gap:28px; }
+  .recommend-cards{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+@media (max-width: 720px){ .recommend-cards{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 480px){ .recommend-cards{ grid-template-columns: 1fr; } }
+
+
+/* ===== 정원 꾸미기 ===== */
+/* -------- Garden (배치 전용) -------- */
+.garden-section{
+  display:flex; align-items:center;
+  min-height:100vh; padding:80px 0; background:#D9E4E4;
+}
+.garden-grid{
+  width:100%; max-width:1200px; margin:0 auto;
+  display:grid; grid-template-columns:1.15fr 1fr; gap:64px; align-items:center;
+}
+.garden-visual{ position:relative; }
+.garden-canvas{
+  position:relative; height:420px;  padding:18px;
+  background:
+    linear-gradient(#0000 23px, rgba(0,0,0,.03) 24px) 0 0/24px 24px,
+    linear-gradient(90deg, #0000 23px, rgba(0,0,0,.03) 24px) 0 0/24px 24px,
+    #f6fbf9;
+  box-shadow: 0 14px 36px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.6);
+}
+
+/* 툴칩 (필요한 것만 유지) */
+.toolchips{ display:flex; gap:10px; position:absolute; top:14px; left:14px; }
+.chip{
+  font-size:14px; padding:6px 10px; border-radius:16px; background:#fff;
+  box-shadow: 0 6px 14px rgba(0,0,0,.06); color:#29463f; font-weight:700;
+}
+
+/* 플로팅 토큰 + 가벼운 애니메이션 */
+@keyframes floaty { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+.plant-token {
+   position: absolute;       /* ← 이 줄 추가 */
+  width: 120px;
+  height: 150px;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plant-token img {
+  width: 80%;
+  height: 80%;
+  object-fit: cover;
+}
+
+
+.plant-token:hover{ transform: translateY(-4px) scale(1.02); box-shadow: 0 18px 36px rgba(0,0,0,.14); }
+.plant-token.pt1{ left:152px; top:69px; }
+.plant-token.pt2{ left:405px; top:69px;  animation-delay:.6s; }
+.plant-token.pt3{ left:18px; top:80px; animation-delay:1.2s; }
+
+/* 스냅 안내 */
+.grid-hint{
+  position:absolute; right:16px; bottom:16px;
+  background:#ffffff; color:#2f6e48; border-radius:12px; padding:8px 12px;
+  box-shadow: 0 10px 22px rgba(0,0,0,.10); font-weight:700; font-size:14px;
+}
+
+/* 텍스트/카드 */
+.garden-text h1{ font-size:48px; font-weight:700; color:#122427; margin:0 0 14px; }
+.garden-text p{ font-size:18px; color:#5c6c6f; margin:0 0 22px; max-width:520px; }
+.garden-steps{ display:inline-flex; align-items:center; gap:12px; background:#fff; padding:10px 14px; border-radius:14px; box-shadow:0 6px 16px rgba(0,0,0,.06); margin-bottom:26px; }
+.garden-steps .sep{ color:#9bb0a7; }
+.garden-perks{ margin-top:28px; display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:16px; }
+.garden-perks .perk{ 
+  display:flex; 
+  gap:12px; 
+  align-items:flex-start; 
+  background:#fff; 
+  padding:16px 10px; 
+  border-radius:14px; 
+  box-shadow:0 8px 18px rgba(0,0,0,.06); 
+}
+.garden-perks .perk i{ color:#5e865f; font-size:20px; margin-top:2px; }
+.perk-title{ font-weight:800; color:#122427; margin-right: 20px;}
+.perk-desc{ font-size:14px; color:#607477; transform: translateX(-10px); text-align: left; margin-top: 5px;}
+
+/* 반응형 */
+@media (max-width: 980px){
+  .garden-grid{ grid-template-columns:1fr; gap:34px; }
+  .garden-canvas{ height:360px; }
+}
+
+.button-garden{
+    background-color: #5e865f;
+    display: inline-block;
+    padding: 18px 90px;
+    border-radius: 30px;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 2px solid transparent;
+    color: #ffffff;
+    margin-top: 20px;
+}
+
+.button-garden:hover{
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  transform: translateY(-2px);
+}
 
 /* =========================
    푸터
@@ -148,397 +544,23 @@ a { text-decoration: none; color: inherit; }
 .social-links a:hover { background: var(--primary-color); transform: translateY(-3px); }
 .copyright { text-align: center; padding-top: 20px; border-top: 1px solid rgba(0,0,0,.1); color: #bdc3c7; font-size: .9rem; }
 
-/* =========================
-   식물 식별 2단 레이아웃
-========================= */
-.identify-section { width: 100%; background: #D9E4E4; overflow: hidden; }
-.identify-grid {
-  display: grid;
-  grid-template-columns: 1.05fr 1fr;
-  align-items: center;
-  gap: 40px;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
-.identify-text .feature-title { font-size: 48px; font-weight: 700; margin: 0 0 12px; }
-.identify-text .feature-description { font-size: 20px; color: #516064; margin: 0 0 28px; }
-
-.identify-steps {
-  display: inline-flex; align-items: center; gap: 14px;
-  background: #fff; border-radius: 14px; padding: 12px 16px;
-  box-shadow: 0 6px 16px rgba(0,0,0,.06); margin-bottom: 20px;
-}
-.identify-steps .step { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: #2f4f3e; }
-.identify-steps .step i { width: 18px; text-align: center; }
-.identify-steps .step-sep { color: #9bb0a7; }
-
-.identify-card {
-  display: flex; align-items: center; gap: 12px;
-  background: #fff; border-radius: 16px; padding: 16px 18px; width: 360px;
-  box-shadow: 0 8px 20px rgba(0,0,0,.08); margin: 8px 0 18px;
-}
-.identify-card .card-icon {
-  width: 60px; height: 60px; border-radius: 50%; background: #eaf3ed;
-  display: inline-flex; align-items: center; justify-content: center; color: #2f6e48;
-}
-.identify-card .pcard-body { display: grid; gap: 2px; }
-.identify-card .card-title { font-weight: 800; font-size: 18px; }
-.identify-card .card-desc { font-size: 14px; color: #607477; }
-
-.identify-cta { display: grid; gap: 10px; margin-top: 4px; }
-.trust-note { color: #4b5b5e; font-size: 14px; }
-
-.identify-visual { display: flex; align-items: center; justify-content: center; }
-/* 기존 규칙 교체 */
-.identify-visual .feature-image {
-  width: 97%;
-  max-width: 97%;
-  height: auto;      /* 기본 불투명, 애니메이션은 reveal이 담당 */
-}
-
-.identify-text { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
-
-/* =========================
-   성장 가이드 섹션 디테일 업
-========================= */
-
-/* 레이아웃 */
-.guide-section{
-  background:#D9E4E4;
-}
-.guide-grid{
-  display:grid;
-  grid-template-columns: 1.12fr 1fr;   /* 왼쪽 비율을 조금 더 크게 */
-  align-items:center;
-  gap:64px;
-  max-width:1200px;
-  margin:0 auto;
-  position:relative;
-}
-
-/* 왼쪽 비주얼 */
-.guide-visual{
-  position:relative;
-  min-height:520px;            /* 버블/원 배경 공간 확보 */
-}
-
-/* 원형 배경(살짝 그러데이션) */
-.guide-circle{
-  position:absolute;
-  left:-110px;                  
-  top:10px;
-  width:630px;
-  height:630px;
-  border-radius:50%;
-  background: #567762;
-  box-shadow: 0 18px 40px rgba(0,0,0,.12) inset, 0 6px 18px rgba(0,0,0,.06);
-}
-
-/* 식물 이미지 */
-.guide-plant-wrap{ position:relative; z-index:2; }
-.guide-plant{
-  width:630px;
-  margin-top: 50px;
-  transform: translateX(-100px);
-  height:auto;
-  display:block;
-
-}
-
-/* 말풍선 */
-.guide-bubbles{ 
-  position:absolute; 
-  z-index:3; 
-  left:78%; 
-  top:18%; 
-  display: flex;           /* Flexbox 사용 */
-  flex-direction: column;  /* 세로로 정렬 */
-  gap: 14px;               /* 말풍선 간 간격 */
-}
-
-.bubble{
-  background:#fff;
-  border-radius:36px;
-  padding:16px 18px;
-  box-shadow: 0 10px 24px rgba(0,0,0,.10);
-  color:#29463f;
-  font-weight:700;
-  line-height:1.45;
-  display:inline-block;
-  position:relative;
-  white-space: nowrap;
-}
-
-.bubble::after {
-  content: "";
-  position: absolute;
-  bottom: -4px; /* 꼬리가 밑으로 나옴 */
-  left: 10%; /* 기본 위치 */
-  transform: translateX(-90%);
-  border-width: 8px 6px 0 6px; /* 위쪽만 뾰족 */
-  border-style: solid;
-  border-color: #fff transparent transparent transparent;
-}
-.bubble.bubble-sm.reveal-down.delay-1::after{
-  bottom: -5px;
-  left: 33%;
-  transform: translateX(-170%);
-}
-.bubble.bubble-sm.reveal-down.delay-3::after{
-  bottom: -4px;
-  left: 25%;
-  transform: translateX(-170%);
-}
-
-.guide-bubbles .bubble:nth-child(1) {
-  padding:16px 18px;
-  width:100px;
-  border-radius:36px;
-}
-.guide-bubbles .bubble:nth-child(2) {
-  width: 220px;
-  margin-top: 14px;
-  margin-left: 14px;
-}
-.guide-bubbles .bubble:nth-child(3) {
-  width: 120px;
-  border-radius:36px;
-  padding:16px 18px;
-  margin-top: 14px;
-  margin-left: 34px;
-}
-
-.bubble-lg{ width:210px; }
-
-.bubble-sm{
-  font-weight:600;
-  padding:10px 14px;
-  border-radius:14px;
-  display:inline-block;
-  width:auto;
-}
-
-/* 오른쪽 텍스트/버튼 */
-.guide-text{ text-align:left; margin-top:100px}
-
-.guide-title{
-  font-size:55px;
-  line-height:1.1;
-  font-weight:600;
-  letter-spacing:-0.5px;
-  margin:0 0 14px;
-  color: #122427;
-}
-.guide-desc{
-  font-size:18px;
-  color:#5c6c6f;
-  margin:0 0 28px;
-  max-width:540px;
-}
-
-/* 큰 버튼 느낌 */
-.guide-section .button-identify{
-  margin-top: 52px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width: 155px;
-  height: 82px;
-  border-radius:34px;
-  font-size:22px;
-  background:#5e865f;
-  box-shadow: 0 10px 24px rgba(46, 93, 63, .22);
-  transition: transform .25s ease, box-shadow .25s ease, background-color .25s ease;
-}
-.guide-section .button-identify:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(46, 93, 63, .28);
-}
-
-.button-identify-report:hover{
-    transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(46, 93, 63, .28);
-}
-
-
-/* 애니메이션(이미 쓰는 reveal 클래스와 어울리게 약간 더 느리게) */
-.guide-plant-wrap.reveal-up,
-.guide-visual .bubble{ transition-duration: 900ms; }
-.guide-text .reveal-down{ transition-duration: 950ms; }
-
-
-
-/* =========================
-   반응형 튜닝
-========================= */
-@media (max-width: 1200px){
-  .guide-circle{ width:500px; height:500px; left:-20px; }
-  .guide-plant{ width:360px; margin:70px 0 0 80px; }
-}
-@media (max-width: 980px){
-  .guide-grid{ grid-template-columns:1fr; gap:40px; }
-  .guide-visual{ min-height:460px; }
-  .guide-circle{
-    left:50%;
-    transform:translateX(-50%);
-    top:0;
-    width:520px; height:520px;
-  }
-  .guide-plant{   max-width: none;
-  width: 800px;              /* 기준 크기 */
-  transform-origin: left bottom;
-  transform: translateX(-80px) scale(1.5);  /* 비율로 확대 */}
-  .guide-bubbles{ left:50%; transform:translateX(140px); top:16%; }
-  .guide-title{ font-size:56px; }
-  .guide-section .button-identify{ min-width:320px; }
-}
-@media (max-width: 640px){
-  .guide-circle{ width:420px; height:420px; }
-  .guide-plant{ width:300px; margin:80px auto 0; }
-  .guide-bubbles{ transform:translateX(110px); }
-  .bubble-lg{ width:180px; }
-  .guide-title{ font-size:40px; }
-  .guide-desc{ font-size:16px; }
-  .guide-section .button-identify{ min-width:260px; font-size:18px; padding:16px 22px; }
-}
-
-/* =========================
-   성장 레포트: 안전한 중앙 정렬 ( :has() 제거 )
-========================= */
-
-/* 모든 feature-section-item을 가운데 정렬 */
-.section.feature-section-item {
+/* 섹션 높이는 100vh, 내용은 아래로 붙이기 */
+.section.footer-section{
+  display: flex;
   flex-direction: column;
-  align-items: center;     /* 가로 중앙 */
-  justify-content: center; /* 세로 중앙 */
-  text-align: center;
-  min-height: 100vh;       /* 화면 정중앙 배치 */
+  justify-content: flex-end;  /* ← 하단 정렬 */
+  min-height: 100vh;
+  padding: 0;                 /* 필요시 여백 제거 */
 }
 
-/* 카드 그리드(성장 레포트) */
-.growth-report-section{
+/* 푸터가 섹션 너비를 꽉 채우도록 */
+.app-footer{
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
-.fp-table {
-  display: block !important;
-}
-
-.growth-report-grid{
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
-  gap: 40px;
-  flex-wrap: wrap;
-  margin: 20px auto 0;
-  max-width: 1000px;
-}
-.growth-report-card{
-  background: var(--white);
-  border-radius: 15px;
-  padding: 30px;
-  width: 250px;
-  box-shadow: var(--shadow);
-  text-align: center;
-  transition: var(--transition);
-}
-.growth-report-card:hover{
-  transform: translateY(-10px);
-  box-shadow: 0 8px 25px rgba(0,0,0,.15);
-}
-.growth-report-icon{ font-size:2.5rem; color: var(--primary-color); margin-bottom:20px; }
-.growth-report-title{ font-size:1.25rem; color: var(--text-primary); margin-bottom:10px;}
-.growth-report-desc{ font-size:.95rem; color: var(--text-secondary); line-height:1.6; }
-
-.growth-report-section{
-  background-color:#E9F0EF;
-  border-radius: 20px;
-  width: 900px;
-  height: 280px;
-}
-
-/* 식물 식별/성장 가이드 섹션은 원래 2단/그리드 레이아웃 유지하도록 덮어쓰기 */
-.section.feature-section-item .identify-section,
-.section.feature-section-item .guide-section {
-  align-self: stretch;     /* 부모 중앙정렬 영향 최소화 */
-  min-height: auto;
-  justify-content: flex-start;
-}
-
-/* 식물 식별 내부 텍스트는 좌측 정렬 유지 */
-.section.feature-section-item .identify-text {
-  text-align: left;
-}
-
-/* 버튼 줄 가운데 배치 보정(성장 레포트 아래 버튼) */
-.section.feature-section-item > div:last-child {
-  align-self: center;
-}
-/* 성장 레포트 섹션 전용 중앙 정렬 */
-.section.feature-section-item.growth-report-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;  /* 세로 중앙 */
-  align-items: center;      /* 가로 중앙 */
-  min-height: 100vh;        /* 화면 높이 기준 */
-}
-
-/* growth-report-section 자체도 가로 중앙 정렬 */
-.growth-report-section {
-  margin: 0 auto;           /* 좌우 중앙 */
-}
-.growth-report-heading {
-  font-size: 48px;
-  padding-top: 80px;
-}
-.growth-report-p {
-  margin-left: 450px;
-}
-
-.button-identify-report{
-  background-color: #5e865f;
-  display: inline-block;
-  padding: 18px 90px;
-  border-radius: 30px;
-  font-size: 20px;
-  font-weight: 600;
-  text-align: center;
-  cursor: pointer;
-  transition: var(--transition);
-  border: 2px solid transparent;
-  color: #ffffff;
-}
-
-/* 반응형에서 카드 간격 살짝 조정 (선택) */
-@media (max-width: 640px) {
-  .growth-report-grid { gap: 24px; }
-}
-
-.guide-section {
-  overflow-x: clip; /* 또는 overflow-x: hidden; */
-}
-
-/* fullpage 섹션에서 세로 오버플로우를 막아 스크롤바 깜빡임 제거 */
-.fp-section,
-.fp-overflow,
-.section.feature-section-item {
-  overflow-y: clip !important;  /* 안 되면 hidden으로 교체 */
-}
-
-/* 이미 하신 것 + 보강: 가이드 섹션 가로는 잘라서 문서폭 안 늘어나게 */
-.guide-section { overflow-x: clip; }
-
-/* 레이아웃 흔들림 방지(지원 브라우저) */
-:root { scrollbar-gutter: stable both-edges; }
 
 /* =========================
    Reveal Animations
-   (fullpage.js가 활성 섹션에 .active 부여)
 ========================= */
 .reveal-up, .reveal-down {
   opacity: 0;
@@ -547,46 +569,26 @@ a { text-decoration: none; color: inherit; }
   transition-duration: 1200ms;
   transition-timing-function: cubic-bezier(.2,.7,.2,1);
 }
-.reveal-up   { transform: translateY(30px); }  /* 아래→위 */
-.reveal-down { transform: translateY(-30px); } /* 위→아래 */
-
+.reveal-up   { transform: translateY(30px); }
+.reveal-down { transform: translateY(-30px); }
 .section.active .reveal-up,
 .section.active .reveal-down,
 .fp-section.active .reveal-up,
-.fp-section.active .reveal-down {
-  opacity: 1;
-  transform: translateY(0);
-}
-
+.fp-section.active .reveal-down { opacity:1; transform: translateY(0); }
 .delay-1 { transition-delay: 420ms; }
 .delay-2 { transition-delay: 540ms; }
 .delay-3 { transition-delay: 660ms; }
 .delay-4 { transition-delay: 780ms; }
 
-/* 모션 최소화 접근성 */
 @media (prefers-reduced-motion: reduce) {
-  .reveal-up, .reveal-down,
-  .delay-1, .delay-2, .delay-3, .delay-4 {
-    transition: none !important;
-    transform: none !important;
-    opacity: 1 !important;
+  .reveal-up, .reveal-down, .delay-1, .delay-2, .delay-3, .delay-4 {
+    transition: none !important; transform: none !important; opacity: 1 !important;
   }
 }
 
 /* =========================
-   반응형
+   fullpage.js 보정
 ========================= */
-@media (max-width: 1080px) {
-  .identify-grid { grid-template-columns: 1fr; gap: 28px; }
-  .identify-text { text-align: left; }
-  .identify-visual .feature-image { max-width: 460px; }
-  .btn-lg { transform: none; font-size: 1.25rem; width: 220px; }
-}
-
-@media (max-width: 640px) {
-  .identify-text .feature-title { font-size: 36px; }
-  .identify-text .feature-description { font-size: 18px; }
-  .identify-card { width: 100%; }
-  .identify-steps { width: 100%; justify-content: space-between; }
-}
+.fp-section, .fp-overflow, .section.feature-section-item { overflow-y: clip !important; }
+.fp-watermark { display: none !important; }
 
