@@ -83,7 +83,6 @@ const MainPage = () => {
       licenseKey={"OPEN-SOURCE-GPLV3-LICENSE"}
       scrollingSpeed={1000}
       navigation
-      normalScrollElements=".hero-and-carousel-section"
       render={() => (
         <ReactFullpage.Wrapper>
           {/* 1) 히어로 + 캐러셀 */}
@@ -252,17 +251,17 @@ const MainPage = () => {
 
                     {/* RIGHT: 카피/스텝/버튼 */}
                     <div className="garden-text">
-                      <h1 className="reveal-down">가상 정원 꾸미기</h1>
+                      <h1 className="reveal-down delay-1">가상 정원 꾸미기</h1>
                       <p className="reveal-down delay-1">
                         사용자가 찍은 식물 사진을 픽셀화하여 정원을 꾸밀 수 있습니다.
                       </p>
 
                       {/* 장점 3가지 */}
-                      <div className="garden-perks">
+                      <div className="garden-perks ">
                         <div className="perk">
-                          <i className="fas fa-grip"></i>
+                          <i className="fas fa-grip delay-1"></i>
                           <div>
-                            <div className="perk-title">정원 구경하기</div>
+                            <div className="perk-title delay-1">정원 구경하기</div>
                             <div className="perk-desc">키보드 키로 자유롭게 이동하며 정원을 구경할 수 있습니다.</div>
                           </div>
                         </div>
