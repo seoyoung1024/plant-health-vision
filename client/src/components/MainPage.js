@@ -40,7 +40,7 @@ const MainPage = () => {
       description: "물 주기, 햇빛, 온도 등 최적의 환경 가이드를 제공해요.",
       background: "#D9E4E4",
       buttonText: "추천받기",
-      buttonUrl: "/guide",
+      buttonUrl: "/plantrecommend/#/care",
     },
     {
       title: "성장 리포트",
@@ -54,7 +54,7 @@ const MainPage = () => {
       description: "Unity 기반 가상 정원에서 나만의 정원을 가꿔보세요.",
       background: "#D9E4E4",
       buttonText: "정원 꾸미기",
-      buttonUrl: "https://plantmate.site",
+      buttonUrl: "https://plantmate.site/garden",
     },
   ];
 
