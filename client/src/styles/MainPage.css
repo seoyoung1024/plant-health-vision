@@ -543,21 +543,26 @@ a {
 .social-links a { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; transition: var(--transition); }
 .social-links a:hover { background: var(--primary-color); transform: translateY(-3px); }
 .copyright { text-align: center; padding-top: 20px; border-top: 1px solid rgba(0,0,0,.1); color: #bdc3c7; font-size: .9rem; }
+/* 마지막 섹션 최소 높이 보장 */
+.section.footer-section {
+  min-height: 100vh;
+  padding: 0;
+}
 
-/* 섹션 높이는 100vh, 내용은 아래로 붙이기 */
-.section.footer-section{
+/* fullPage가 만든 래퍼에도 하단 정렬 적용 */
+.section.footer-section > .fp-tableCell,
+.section.footer-section > .fp-overflow,
+.section.footer-section > .fp-tableCell > .fp-overflow {
+  height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;  /* ← 하단 정렬 */
-  min-height: 100vh;
-  padding: 0;                 /* 필요시 여백 제거 */
+  justify-content: flex-end; /* 맨 아래 */
 }
 
-/* 푸터가 섹션 너비를 꽉 채우도록 */
-.app-footer{
+/* 푸터 가로 폭 맞춤 */
+.app-footer {
   width: 100%;
 }
-
 
 /* =========================
    Reveal Animations
