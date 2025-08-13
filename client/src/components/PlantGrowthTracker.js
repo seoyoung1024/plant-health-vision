@@ -5,15 +5,13 @@ import Header from "./Header";
 const PlantGrowthTracker = () => {
   const [plantId, setPlantId] = useState('');
   const [imageGallery, setImageGallery] = useState([]);
-  const [showCamera, setShowCamera] = useState(false);
   const [growthData, setGrowthData] = useState(null);
   const [reportData, setReportData] = useState(null);
   const [reports, setReports] = useState([]);
 
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
 
+  // 단일 파일 업로드 (서버 → S3 저장)
   const handleUpload = async (imageBlob) => {
     if (!plantId) {
       alert('식물 ID를 입력해주세요.');
@@ -21,7 +19,7 @@ const PlantGrowthTracker = () => {
     }
 
     const formData = new FormData();
-    formData.append('file', imageBlob, 'uploaded.jpg');
+    formData.append('file', imageBlob, imageBlob.name || 'uploaded.jpg');
     formData.append('notes', '');
 
     await fetch(`/api/plants/${plantId}/upload`, {
@@ -29,49 +27,18 @@ const PlantGrowthTracker = () => {
       body: formData,
     });
 
-    loadImages();
+    await loadImages();
   };
 
+  // 다중 파일 업로드 지원
   const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    await handleUpload(file);
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    for (const file of files) {
+      await handleUpload(file);
+    }
     e.target.value = '';
-  };
-
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      videoRef.current.srcObject = stream;
-      setShowCamera(true);
-    } catch (err) {
-      alert('카메라 접근에 실패했습니다.');
-    }
-  };
-
-  const stopCamera = () => {
-    const stream = videoRef.current?.srcObject;
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-    }
-    setShowCamera(false);
-  };
-
-  const capturePhoto = () => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    canvas.toBlob(blob => {
-      if (blob) {
-        handleUpload(blob);
-        stopCamera();
-      }
-    }, 'image/jpeg');
   };
 
   const loadImages = async () => {
@@ -107,7 +74,6 @@ const PlantGrowthTracker = () => {
       const data = await res.json();
       setGrowthData(data.growth);
 
-      // ✅ 분석 결과를 UI에 바로 보여주도록 reportData에 저장
       setReportData({
         first_image_url: data.growth.first_image_url || '',
         last_image_url: data.growth.last_image_url || '',
@@ -115,7 +81,6 @@ const PlantGrowthTracker = () => {
         report: data.growth.report,
       });
 
-      // ✅ 분석 완료 후 전체 리포트 목록 갱신
       fetchAllReports();
     } catch (err) {
       console.error("성장 분석 실패:", err);
@@ -143,9 +108,7 @@ const PlantGrowthTracker = () => {
 
     try {
       const response = await fetch('/api/growth-report/all', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!response.ok) {
@@ -155,8 +118,6 @@ const PlantGrowthTracker = () => {
       }
 
       const data = await response.json();
-      console.log("받아온 리포트:", data);
-
       if (Array.isArray(data)) {
         setReports(data);
       } else if (Array.isArray(data.reports)) {
@@ -177,7 +138,6 @@ const PlantGrowthTracker = () => {
       loadImages();
       loadGrowthReport();
     }
-    return () => stopCamera();
   }, [plantId]);
 
   useEffect(() => {
@@ -207,19 +167,57 @@ const PlantGrowthTracker = () => {
               />
             </div>
             <div className="mb-3 d-flex gap-2">
-              <button className="btn btn-outline-secondary" onClick={() => fileInputRef.current.click()}>사진 업로드</button>
-              <button className="btn btn-outline-success" onClick={analyzeGrowth}>성장 분석</button>
+              <button
+                className="btn btn-outline-secondary"
+                onClick={() => fileInputRef.current.click()}
+              >
+                사진 업로드
+              </button>
+              <button className="btn btn-outline-success" onClick={analyzeGrowth}>
+                성장 분석
+              </button>
               <input
                 type="file"
                 accept="image/*"
                 ref={fileInputRef}
                 style={{ display: 'none' }}
                 onChange={handleFileUpload}
+                multiple
               />
             </div>
-            <canvas ref={canvasRef} style={{ display: 'none' }} />
           </div>
         </div>
+
+        {/* 이미지 갤러리 */}
+       <div className="gallery-grid">
+  {imageGallery.map((img, idx) => {
+    const url =
+      (typeof img === 'string' && img) ||
+      img?.image_url || img?.url || img?.signed_url || img?.presigned_url || img?.Location || '';
+
+    return (
+      <div key={idx} className="gallery-card">
+        <a href={url} target="_blank" rel="noreferrer">
+          <img
+            src={url}
+            alt={`plant-${idx}`}
+            className="gallery-thumb"
+            onError={(e) => {
+              // 로드 실패면 URL 텍스트로 이유 확인
+              e.currentTarget.style.display = 'none';
+              const text = e.currentTarget.nextSibling;
+              if (text) text.style.display = 'block';
+            }}
+          />
+        </a>
+        <div style={{display:'none', wordBreak:'break-all', fontSize:12, color:'#666'}}>
+          이미지 로드 실패 • {url || '(빈 값)'}
+        </div>
+      </div>
+    );
+  })}
+</div>
+
         {/* 최근 분석 결과 */}
         {reportData && (
           <div className="card mt-4 p-3 shadow">
@@ -269,7 +267,6 @@ const PlantGrowthTracker = () => {
         )}
 
         {/* 전체 리포트 카드 */}
-       {/* 전체 리포트 카드 (리포트 있을 때만 보여주기 + 배경 포함) */}
         {reports.length > 0 && (
           <div className="report-container">
             <div className="report-grid">

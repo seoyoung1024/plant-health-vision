@@ -281,3 +281,14 @@ def get_all_growth_reports(request: Request):
         })
 
     return {"reports": refreshed}
+
+@router.get("/api/plants/{plant_id}/images")
+def list_plant_images(plant_id: str):
+    # plant_id가 파일명에 포함된 이미지들만 찾고 presigned URL 생성
+    urls, keys = get_presigned_urls_for_plant(plant_id, max_count=200)
+    return {
+        "images": [
+            {"s3_key": k, "image_url": u}   # ← 프론트가 바로 쓸 수 있게 image_url로 통일
+            for u, k in zip(urls, keys)
+        ]
+    }

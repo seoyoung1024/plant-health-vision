@@ -80,9 +80,13 @@ const MainPage = () => {
 
   return (
     <ReactFullpage
-      licenseKey={"OPEN-SOURCE-GPLV3-LICENSE"}
-      scrollingSpeed={1000}
+      licenseKey="OPEN-SOURCE-GPLV3-LICENSE"
+      autoScrolling={true}
+      fitToSection={true}
+      scrollBar={false}             // 브라우저 기본 스크롤 끄기
+      bigSectionsDestination="top"
       navigation
+      credits={{ enabled: false }}
       render={() => (
         <ReactFullpage.Wrapper>
           {/* 1) 히어로 + 캐러셀 */}
