@@ -318,19 +318,19 @@ const MainPage = () => {
                         <div className="growth-report-card reveal-up delay-1">
                           <div className="growth-report-icon"><i className="fas fa-camera" /></div>
                           <h3 className="growth-report-title">Before & After 비교</h3>
-                          <p className="growth-report-desc">사진 비교로 변화를 한눈에 확인하세요.</p>
+                          <p className="growth-report-desc">사진 비교로 변화를 한눈에 확인</p>
                         </div>
 
                         <div className="growth-report-card reveal-up delay-2">
                           <div className="growth-report-icon"><i className="fas fa-chart-line" /></div>
                           <h3 className="growth-report-title">성장 데이터 분석</h3>
-                          <p className="growth-report-desc">키/잎 수 등 데이터를 그래프로 시각화</p>
+                          <p className="growth-report-desc">키/잎 수 등 데이터를 분석해 성장률 제공</p>
                         </div>
 
                         <div className="growth-report-card reveal-up delay-3">
                           <div className="growth-report-icon"><i className="fas fa-book-open" /></div>
-                          <h3 className="growth-report-title">주간/월간 리포트</h3>
-                          <p className="growth-report-desc">주기적인 요약 리포트로 관리 상태 점검.</p>
+                          <h3 className="growth-report-title">리포트 제공</h3>
+                          <p className="growth-report-desc">주기적인 요약 리포트로 관리 상태 점검</p>
                         </div>
                       </div>
                     </div>
