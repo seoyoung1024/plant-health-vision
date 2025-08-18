@@ -43,7 +43,7 @@ const Header = () => {
             홈
           </a>
                   
-          <a href="http://15.168.150.125:3005/" className="nav-link">
+          <a href="/plantsearch" className="nav-link">
             식물 식별
           </a>
 

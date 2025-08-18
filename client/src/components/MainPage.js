@@ -26,7 +26,7 @@ const MainPage = () => {
       background: "#D9E4E4",
       image: plantRecommendationImage,
       buttonText: "식별하기",
-      buttonUrl: "http://15.168.150.125:3005/",
+      buttonUrl: "/plantsearch",
     },
     {
       title: "식물 추천",
