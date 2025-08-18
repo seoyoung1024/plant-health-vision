@@ -16,7 +16,7 @@ import flower from "../1002.png";
 import gardenBg from "../garden-bg.png"; // <- 방금 이미지 저장한 경로
 
 const MainPage = () => {
-  const plantNames = ["감나무", "개망초", "튤립", "네잎클로바", "안개꽃", "개나리"];
+  const plantNames = ["감나무", "개망초", "튤립", "네잎클로바", "안개꽃", "해바라기"];
   const [mixedPlantImages, setMixedPlantImages] = useState([]);
 
   const features = [
