@@ -79,14 +79,19 @@ const MainPage = () => {
   }, []);
 
   return (
-    <ReactFullpage
-      licenseKey="OPEN-SOURCE-GPLV3-LICENSE"
-      autoScrolling={true}
-      fitToSection={true}
-      scrollBar={false}             // 브라우저 기본 스크롤 끄기
-      bigSectionsDestination="top"
-      navigation
-      credits={{ enabled: false }}
+      <ReactFullpage
+        licenseKey="OPEN-SOURCE-GPLV3-LICENSE"
+        autoScrolling={true}
+        fitToSection={true}
+        /* ✅ 브라우저 기본 스크롤 켜서 충돌 완화 */
+        scrollBar={true}
+        /* ✅ 캐러셀/카드 부근에서 휠은 정상 스크롤로 처리 */
+        normalScrollElements=".plant-gallery, .recommend-cards, .garden-canvas"
+        /* 선택: 터치/휠 민감도 개선 */
+        touchSensitivity={10}
+        bigSectionsDestination="top"
+        navigation
+        credits={{ enabled: false }}
       render={() => (
         <ReactFullpage.Wrapper>
           {/* 1) 히어로 + 캐러셀 */}

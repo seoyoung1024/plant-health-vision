@@ -597,3 +597,33 @@ a {
 .fp-section, .fp-overflow, .section.feature-section-item { overflow-y: clip !important; }
 .fp-watermark { display: none !important; }
 
+/* === 문서 전역 스크롤바 숨김 (스크롤은 유지) === */
+html, body {
+  -ms-overflow-style: none;   /* IE/Old Edge */
+  scrollbar-width: none;      /* Firefox */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;              /* Chrome/Safari/Opera */
+  width: 0;
+  height: 0;
+}
+
+/* === fullpage 내부 스크롤러도 숨김 === */
+.fp-overflow,
+.plant-gallery,
+.recommend-cards-wrapper,
+.garden-canvas,
+.growth-report-section {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.fp-overflow::-webkit-scrollbar,
+.plant-gallery::-webkit-scrollbar,
+.recommend-cards-wrapper::-webkit-scrollbar,
+.garden-canvas::-webkit-scrollbar,
+.growth-report-section::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
