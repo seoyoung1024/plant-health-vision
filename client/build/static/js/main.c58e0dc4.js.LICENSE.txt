@@ -1,0 +1,68 @@
+/*!
+      * fullPage 4.0.33
+      * https://github.com/alvarotrigo/fullPage.js
+      *
+      * @license GPLv3 for open source use only
+      * or Fullpage Commercial License for commercial use
+      * http://alvarotrigo.com/fullPage/pricing/
+      *
+      * Copyright (C) 2018 http://alvarotrigo.com/fullPage/ - A project by Alvaro Trigo
+      */
+
+/*!
+ * @fullpage/react-fullpage 0.1.49
+ * https://github.com/alvarotrigo/react-fullpage
+ * @license https://github.com/alvarotrigo/react-fullpage#license
+ *
+ * Copyright (C) 2018 alvarotrigo.com - A project by Alvaro Trigo & Michael Walker
+ */
+
+/**
+ * @license React
+ * react-dom-client.production.js
+ *
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @license React
+ * react-dom.production.js
+ *
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @license React
+ * react-jsx-runtime.production.js
+ *
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @license React
+ * react.production.js
+ *
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @license React
+ * scheduler.production.js
+ *
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
