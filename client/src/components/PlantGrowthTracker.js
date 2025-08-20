@@ -14,7 +14,7 @@ const PlantGrowthTracker = () => {
   // 단일 파일 업로드 (서버 → S3 저장)
   const handleUpload = async (imageBlob) => {
     if (!plantId) {
-      alert('식물 ID를 입력해주세요.');
+      alert('식물 이름을 입력해주세요.');
       return;
     }
 
